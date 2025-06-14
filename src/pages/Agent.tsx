@@ -9,14 +9,14 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 // --- DEV-ONLY: Hardcoded Keys ---
 // WARNING: Do NOT use these in production. These should be moved to a secure
 // backend environment and accessed via an API endpoint.
-const OPENAI_API_KEY: string = "YOUR_OPENAI_API_KEY_HERE";
+const OPENAI_API_KEY: string = "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";
 const ASSISTANT_ID: string = "asst_hX6NQ7jnFaVB16Qohr5vyFVi";
 
 const Agent = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Agent online. How can I help you dominate your business operations today?",
+      content: "Hardcore Dev Ops online. How can I help you dominate your business operations today?",
     },
   ]);
   const [input, setInput] = useState("");
@@ -60,7 +60,7 @@ const Agent = () => {
 
   return (
     <div className="container mx-auto flex h-[calc(100vh-140px)] max-h-[900px] flex-col py-8">
-      <h1 className="font-heading text-4xl text-center text-white mb-2">LIVE AGENT</h1>
+      <h1 className="font-heading text-4xl text-center text-white mb-2">HARDCORE DEV OPS</h1>
       <p className="text-center text-gray-400 mb-6">Talk to the machine.</p>
 
       <div className="flex-1 overflow-y-auto rounded-lg border border-hardcore-pink/20 bg-cyber-indigo/50 p-4" ref={chatContainerRef}>
