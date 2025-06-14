@@ -9,8 +9,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 // --- DEV-ONLY: Hardcoded Keys ---
 // WARNING: Do NOT use these in production. These should be moved to a secure
 // backend environment and accessed via an API endpoint.
-const OPENAI_API_KEY = "YOUR_OPENAI_API_KEY_HERE";
-const ASSISTANT_ID = "asst_hX6NQ7jnFaVB16Qohr5vyFVi";
+const OPENAI_API_KEY: string = "YOUR_OPENAI_API_KEY_HERE";
+const ASSISTANT_ID: string = "asst_hX6NQ7jnFaVB16Qohr5vyFVi";
 
 const Agent = () => {
   const [messages, setMessages] = useState<Message[]>([
