@@ -6,6 +6,7 @@ const navItems = [
   { name: 'Services', href: '/services' },
   { name: 'Live Agent', href: '/agent' },
   { name: 'Reports', href: '/reports' },
+  { name: 'Contact', href: '/contact' },
 ];
 
 const Header = () => {
