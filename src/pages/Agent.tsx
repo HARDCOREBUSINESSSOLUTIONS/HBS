@@ -5,12 +5,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { ChatMessage, Message } from "@/components/ChatMessage";
 import { Send, Loader } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import OpenAI from 'openai';
+import { toast } from "sonner";
 
 // --- DEV-ONLY: Hardcoded Keys ---
-// WARNING: Do NOT use these in production. These should be moved to a secure
-// backend environment and accessed via an API endpoint.
+// WARNING: Do NOT use these in production. This is a major security risk.
+// Your API key will be exposed to anyone visiting your site.
+// Use a secure backend (like a Supabase Edge Function) to handle API calls.
 const OPENAI_API_KEY: string = "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";
 const ASSISTANT_ID: string = "asst_hX6NQ7jnFaVB16Qohr5vyFVi";
+
+const openai = new OpenAI({
+  apiKey: OPENAI_API_KEY,
+  dangerouslyAllowBrowser: true, // Required for browser-side usage
+});
 
 const Agent = () => {
   const [messages, setMessages] = useState<Message[]>([
@@ -22,6 +30,15 @@ const Agent = () => {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const [threadId, setThreadId] = useState<string | null>(null);
+
+  useEffect(() => {
+    toast.warning("Security Alert: API Key Exposed", {
+      description: "This is for development testing only. Do not deploy with keys in frontend code.",
+      duration: Infinity,
+      dismissible: false,
+    });
+  }, []);
 
   useEffect(() => {
     chatContainerRef.current?.scrollTo({
@@ -36,26 +53,58 @@ const Agent = () => {
 
     const userMessage: Message = { role: "user", content: input.trim() };
     setMessages((prev) => [...prev, userMessage]);
+    const currentInput = input;
     setInput("");
     setIsLoading(true);
 
-    // --- FRONTEND-ONLY MOCK ---
-    // This simulates an API call. Replace this with your actual backend logic.
-    // You will need to make a request to your server, which then securely
-    // calls the OpenAI Assistant API using your key and Assistant ID.
-    console.log("--- Mock API Call ---");
-    console.log("Using API Key:", OPENAI_API_KEY === "YOUR_OPENAI_API_KEY_HERE" ? "Placeholder (Update Me!)" : "Set");
-    console.log("Using Assistant ID:", ASSISTANT_ID === "YOUR_ASSISTANT_ID_HERE" ? "Placeholder (Update Me!)" : "Set");
-    console.log("Message to send:", userMessage.content);
-    
-    setTimeout(() => {
-      const assistantResponse: Message = {
-        role: "assistant",
-        content: `This is a mocked response for: "${userMessage.content}".\n\nConnect your backend to get a real answer from the AI agent.`,
-      };
-      setMessages((prev) => [...prev, assistantResponse]);
+    try {
+      const currentThreadId = threadId ?? (await openai.beta.threads.create()).id;
+      if (!threadId) {
+        setThreadId(currentThreadId);
+      }
+
+      await openai.beta.threads.messages.create(currentThreadId, {
+        role: "user",
+        content: currentInput,
+      });
+
+      const run = await openai.beta.threads.runs.create(currentThreadId, {
+        assistant_id: ASSISTANT_ID,
+      });
+
+      let runStatus = await openai.beta.threads.runs.retrieve(currentThreadId, run.id);
+      while (runStatus.status !== "completed") {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        runStatus = await openai.beta.threads.runs.retrieve(currentThreadId, run.id);
+
+        if (['failed', 'cancelled', 'expired'].includes(runStatus.status)) {
+          throw new Error(`Run failed with status: ${runStatus.status}`);
+        }
+      }
+
+      const threadMessages = await openai.beta.threads.messages.list(currentThreadId);
+      const assistantResponse = threadMessages.data.find(
+        (m) => m.run_id === run.id && m.role === "assistant"
+      );
+
+      if (assistantResponse && assistantResponse.content[0].type === 'text') {
+        const assistantMessage: Message = {
+          role: "assistant",
+          content: assistantResponse.content[0].text.value.replace(/【\d+†source】/g, ''),
+        };
+        setMessages((prev) => [...prev, assistantMessage]);
+      } else {
+        throw new Error("No valid text response from assistant.");
+      }
+    } catch (error) {
+      console.error("OpenAI API Error:", error);
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+      toast.error(`Error: ${errorMessage}`);
+      setMessages(prev => prev.slice(0, -1)); // Revert optimistic UI update
+      setInput(currentInput);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -97,6 +146,7 @@ const Agent = () => {
               }
             }}
             rows={1}
+            disabled={isLoading}
           />
           <HardcoreButton type="submit" disabled={isLoading || !input.trim()}>
             <Send size={20} />
