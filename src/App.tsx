@@ -12,26 +12,31 @@ import Agent from "./pages/Agent";
 import Reports from "./pages/Reports";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
+import { AuthProvider } from "./contexts/AuthProvider";
+import ProfileSetup from "./pages/ProfileSetup";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
       <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/agent" element={<Agent />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/services" element={<Services />} />
+              <Route path="/agent" element={<Agent />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/profile-setup" element={<ProfileSetup />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Layout>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
