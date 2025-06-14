@@ -11,34 +11,18 @@ const CrmSummary: React.FC<CrmSummaryProps> = ({ profile }) => {
     return null;
   }
 
-  const renderList = (items: string[] | undefined | null) => items && items.length > 0 ? items.join(', ') : 'N/A';
+  const renderList = (items: string[] | undefined | null) => items && items.length > 0 ? `${items.join(', ')}` : '...';
+  const renderItem = (item: string | undefined | null) => item || '...';
+
+  // “New Profile: [Name] from [Business], pain points include [tags]; they use [tools] and want [desired outcomes], currently in [stage]. Keywords: [keywords].”
+  const summaryText = `New Profile: ${profile.name} from ${profile.business_name || '...'}, pain points include ${renderList(profile.pain_points)}; they use ${renderList(profile.current_tools)} and want ${renderList(profile.desired_outcomes)}, currently in ${renderItem(profile.workflow_stage)}. Keywords: ${renderList(profile.keywords)}.`;
 
   return (
     <div className="mt-12 p-6 border border-hardcore-pink/50 rounded-lg bg-deep-black/50 shadow-lg shadow-hardcore-pink/10">
-      <h3 className="font-heading text-2xl text-hardcore-pink uppercase">New Profile Acquired</h3>
-      <div className="mt-4 font-mono text-gray-300 space-y-2 text-sm">
-        <p>
-          <span className="text-hardcore-pink/80">TARGET:</span> {profile.name || '...'}
-        </p>
-        <p>
-          <span className="text-hardcore-pink/80">AFFILIATION:</span> {profile.business_name || '...'} ({profile.industry || '...'})
-        </p>
-        <p>
-          <span className="text-hardcore-pink/80">PAIN:</span> {renderList(profile.pain_points)}
-        </p>
-         <p>
-          <span className="text-hardcore-pink/80">ARSENAL:</span> {renderList(profile.current_tools)}
-        </p>
-        <p>
-          <span className="text-hardcore-pink/80">OBJECTIVE:</span> {renderList(profile.desired_outcomes)}
-        </p>
-         <p>
-          <span className="text-hardcore-pink/80">STAGE:</span> {profile.workflow_stage || '...'}
-        </p>
-         <p>
-          <span className="text-hardcore-pink/80">KEYWORDS:</span> {renderList(profile.keywords)}
-        </p>
-      </div>
+      <h3 className="font-heading text-2xl text-hardcore-pink uppercase">Profile Acquired: Analysis</h3>
+      <p className="mt-4 font-mono text-gray-300 text-sm italic">
+        {summaryText}
+      </p>
        <p className="mt-4 text-xs text-center text-gray-500 italic">
           Profile data compiled. Ready for insertion into Supabase / export to Airtable.
         </p>

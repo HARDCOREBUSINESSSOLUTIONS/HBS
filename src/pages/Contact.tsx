@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,6 +37,8 @@ const formSchema = z.object({
   current_tools: z.array(z.string()).optional(),
   desired_outcomes: z.array(z.string()).optional(),
   workflow_stage: z.string().optional(),
+  ai_stack: z.array(z.string()).optional(),
+  tags: z.array(z.string()).optional(),
   newsletter_opt_in: z.boolean().default(false).optional(),
 });
 
@@ -58,6 +59,8 @@ const Contact = () => {
       current_tools: [],
       desired_outcomes: [],
       workflow_stage: "",
+      ai_stack: [],
+      tags: [],
       newsletter_opt_in: false,
     },
   });
@@ -238,6 +241,42 @@ const Contact = () => {
                       <SelectItem value="enterprise">Enterprise</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+             <FormField
+              control={form.control}
+              name="ai_stack"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-white">Current AI Stack</FormLabel>
+                  <FormControl>
+                    <MultiTagInput 
+                      placeholder="e.g. OpenAI API, LangChain, Midjourney..."
+                      value={field.value || []}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-white">Tags</FormLabel>
+                  <FormControl>
+                    <MultiTagInput 
+                      placeholder="e.g. B2B, SaaS, high-growth..."
+                      value={field.value || []}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
