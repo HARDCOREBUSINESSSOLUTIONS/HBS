@@ -9,7 +9,66 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      crm_profiles: {
+        Row: {
+          ai_stack: string[] | null
+          business_name: string | null
+          created_at: string
+          current_tools: string[] | null
+          desired_outcomes: string[] | null
+          email: string | null
+          id: string
+          industry: string | null
+          keywords: string[] | null
+          last_session: string | null
+          name: string | null
+          newsletter_opt_in: boolean | null
+          pain_points: string[] | null
+          report_generated: boolean | null
+          tags: string[] | null
+          user_id: string | null
+          workflow_stage: string | null
+        }
+        Insert: {
+          ai_stack?: string[] | null
+          business_name?: string | null
+          created_at?: string
+          current_tools?: string[] | null
+          desired_outcomes?: string[] | null
+          email?: string | null
+          id?: string
+          industry?: string | null
+          keywords?: string[] | null
+          last_session?: string | null
+          name?: string | null
+          newsletter_opt_in?: boolean | null
+          pain_points?: string[] | null
+          report_generated?: boolean | null
+          tags?: string[] | null
+          user_id?: string | null
+          workflow_stage?: string | null
+        }
+        Update: {
+          ai_stack?: string[] | null
+          business_name?: string | null
+          created_at?: string
+          current_tools?: string[] | null
+          desired_outcomes?: string[] | null
+          email?: string | null
+          id?: string
+          industry?: string | null
+          keywords?: string[] | null
+          last_session?: string | null
+          name?: string | null
+          newsletter_opt_in?: boolean | null
+          pain_points?: string[] | null
+          report_generated?: boolean | null
+          tags?: string[] | null
+          user_id?: string | null
+          workflow_stage?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

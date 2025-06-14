@@ -3,3 +3,6 @@ project_id = "cyxufdzkpouwypgxibxo"
 
 [functions.airtable-fetch]
 verify_jwt = false
+
+[functions.crm-profile-add]
+verify_jwt = false
