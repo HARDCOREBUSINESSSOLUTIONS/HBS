@@ -1,4 +1,3 @@
-
 import {
   Table,
   TableBody,
@@ -57,6 +56,57 @@ const features = [
   },
 ];
 
+const subAgents = [
+  {
+    agent: "Keyword Intel (keyword_intel)",
+    configDir: "packages/agent_configs/keyword_intel/",
+    personaFile: "persona.md",
+    functionSchema: "functions.json • extract_keywords",
+    extraTools: "file_search",
+  },
+  {
+    agent: "Automation Mapper (automation_mapper)",
+    configDir: "packages/agent_configs/automation_mapper/",
+    personaFile: "persona.md",
+    functionSchema: "functions.json • generate_workflow_map",
+    extraTools: "code_interpreter",
+  },
+  {
+    agent: "Interface Architect (interface_architect)",
+    configDir: ".../interface_architect/",
+    personaFile: "persona.md",
+    functionSchema: "functions.json • design_avatar_flow",
+    extraTools: "image_generator",
+  },
+  {
+    agent: "LLM Strategist (llm_strategist)",
+    configDir: ".../llm_strategist/",
+    personaFile: "persona.md",
+    functionSchema: "functions.json • select_models",
+    extraTools: "browser",
+  },
+  {
+    agent: "Retrieval Agent (retrieval_agent)",
+    configDir: ".../retrieval_agent/",
+    personaFile: "persona.md",
+    functionSchema: "functions.json • rag_query",
+    extraTools: "retrieval",
+  },
+  {
+    agent: "Report Generator (report_generator)",
+    configDir: ".../report_generator/",
+    personaFile: "persona.md",
+    functionSchema: "functions.json • create_agent_stack_report • generate_pdf_dashboard",
+    extraTools: "code_interpreter",
+  },
+  {
+    agent: "Image Forge (image_forge)",
+    configDir: ".../image_forge/",
+    personaFile: "persona.md",
+    functionSchema: "functions.json • render_arch_diagram",
+    extraTools: "image_generator",
+  },
+];
 
 const Services = () => (
   <div className="container mx-auto py-20">
@@ -80,6 +130,36 @@ const Services = () => (
               <TableCell className="align-top font-bold text-white">{feature.keyword}</TableCell>
               <TableCell className="align-top text-gray-300">{feature.meaning}</TableCell>
               <TableCell className="align-top text-gray-300">{feature.useCase}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+
+    <div className="mt-20 text-center">
+        <h2 className="font-heading text-4xl text-white">Sub-Agent Blueprint</h2>
+        <p className="mt-4 text-lg text-gray-300">Specialized agents and their operational parameters.</p>
+    </div>
+    <div className="mt-12 overflow-x-auto">
+      <Table className="min-w-full border border-cyber-indigo/20 bg-deep-black/30">
+        <TableCaption className="mt-6 text-gray-400">Each agent inherits the master tone but narrows its focus to its domain.</TableCaption>
+        <TableHeader>
+          <TableRow className="border-b border-cyber-indigo/20 hover:bg-cyber-indigo/10">
+            <TableHead className="w-[250px] font-heading text-base text-hardcore-pink uppercase tracking-wider">Sub-Agent (slug)</TableHead>
+            <TableHead className="font-heading text-base text-hardcore-pink uppercase tracking-wider">Config Dir</TableHead>
+            <TableHead className="font-heading text-base text-hardcore-pink uppercase tracking-wider">Persona File</TableHead>
+            <TableHead className="font-heading text-base text-hardcore-pink uppercase tracking-wider">Function Schema(s)</TableHead>
+            <TableHead className="font-heading text-base text-hardcore-pink uppercase tracking-wider">Extra Tools</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {subAgents.map((agent) => (
+            <TableRow key={agent.agent} className="border-b border-cyber-indigo/20 last:border-b-0 hover:bg-cyber-indigo/10">
+              <TableCell className="align-top font-bold text-white">{agent.agent}</TableCell>
+              <TableCell className="align-top font-mono text-sm text-gray-400">{agent.configDir}</TableCell>
+              <TableCell className="align-top font-mono text-sm text-gray-400">{agent.personaFile}</TableCell>
+              <TableCell className="align-top text-gray-300">{agent.functionSchema}</TableCell>
+              <TableCell className="align-top text-gray-300">{agent.extraTools}</TableCell>
             </TableRow>
           ))}
         </TableBody>
