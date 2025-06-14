@@ -1,4 +1,3 @@
-
 import React, { useState, FormEvent, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +8,10 @@ import MultiTagInput from '@/components/crm/MultiTagInput';
 import CrmSummary from '@/components/crm/CrmSummary';
 import { Tables } from '@/integrations/supabase/types';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Terminal } from 'lucide-react';
 
 const ProfileSetup = () => {
     const { user, loading: authLoading } = useAuth();
@@ -26,6 +29,7 @@ const ProfileSetup = () => {
         tags: [],
         newsletter_opt_in: false,
     });
+    const [resendLoading, setResendLoading] = useState(false);
 
     useEffect(() => {
         if (!authLoading && !user) {
@@ -36,6 +40,21 @@ const ProfileSetup = () => {
             setProfile(p => ({ ...p, email: user.email }));
         }
     }, [user, authLoading, navigate]);
+
+    const handleResendVerification = async () => {
+        if (!user?.email) return;
+        setResendLoading(true);
+        const { error } = await supabase.auth.resend({
+            type: 'signup',
+            email: user.email,
+        });
+        if (error) {
+            toast.error(`Failed to resend: ${error.message}`);
+        } else {
+            toast.success("Verification email sent! Check your inbox.");
+        }
+        setResendLoading(false);
+    };
 
     const handleFieldChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { id, value } = e.target;
@@ -91,6 +110,25 @@ const ProfileSetup = () => {
                     <h1 className="font-heading text-5xl md:text-6xl text-white uppercase tracking-tighter">Profile Setup</h1>
                     <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-400">Your profile is incomplete. Provide intel to proceed.</p>
                 </div>
+
+                {user && !user.email_confirmed_at && (
+                    <Alert className="mb-8 border-hardcore-pink/50 text-white bg-deep-black/50">
+                        <Terminal className="h-4 w-4 text-hardcore-pink" />
+                        <AlertTitle className="text-hardcore-pink uppercase">Verification Pending</AlertTitle>
+                        <AlertDescription className="flex items-center justify-between text-gray-300">
+                            Your profile is not yet active. Please check your inbox and click the verification link.
+                            <Button 
+                                onClick={handleResendVerification} 
+                                disabled={resendLoading}
+                                variant="outline"
+                                size="sm"
+                                className="ml-4 bg-transparent hover:bg-hardcore-pink/20 border-hardcore-pink/50"
+                            >
+                                {resendLoading ? 'Sending...' : 'Resend Verification'}
+                            </Button>
+                        </AlertDescription>
+                    </Alert>
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                     <form onSubmit={handleSubmit} className="space-y-6">

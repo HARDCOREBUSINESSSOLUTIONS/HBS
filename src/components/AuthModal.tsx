@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -14,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import HardcoreButton from './HardcoreButton';
+import { Button } from './ui/button';
 
 interface AuthModalProps {
   open: boolean;
@@ -25,6 +25,21 @@ const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const handleSignInWithGoogle = async () => {
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/profile-setup`,
+      },
+    });
+    if (error) {
+      toast.error(error.message);
+      setLoading(false);
+    }
+    // On success, Supabase handles the redirection.
+  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +102,17 @@ const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
                 {loading ? 'Authenticating...' : 'Sign In'}
               </HardcoreButton>
             </form>
+            <div className="relative my-2">
+                <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-gray-700" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-deep-black px-2 text-gray-500">Or</span>
+                </div>
+            </div>
+            <Button variant="outline" className="w-full mt-2 bg-transparent text-white hover:bg-cyber-indigo/20 hover:text-white border-cyber-indigo/50" onClick={handleSignInWithGoogle} disabled={loading}>
+              Sign In with Google
+            </Button>
           </TabsContent>
           <TabsContent value="signup">
             <form onSubmit={handleSignUp} className="space-y-4 py-4">
@@ -102,6 +128,17 @@ const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
                 {loading ? 'Creating Profile...' : 'Sign Up'}
               </HardcoreButton>
             </form>
+            <div className="relative my-2">
+                <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-gray-700" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-deep-black px-2 text-gray-500">Or</span>
+                </div>
+            </div>
+            <Button variant="outline" className="w-full mt-2 bg-transparent text-white hover:bg-cyber-indigo/20 hover:text-white border-cyber-indigo/50" onClick={handleSignInWithGoogle} disabled={loading}>
+              Sign Up with Google
+            </Button>
           </TabsContent>
         </Tabs>
       </DialogContent>
