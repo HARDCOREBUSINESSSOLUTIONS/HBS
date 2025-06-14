@@ -1,6 +1,6 @@
-
 import HardcoreButton from "@/components/HardcoreButton";
 import { Zap, BrainCircuit, ShieldCheck, Cpu, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const services = [
   {
@@ -36,9 +36,11 @@ const Index = () => {
             We weaponize AI to destroy inefficiency. Your business, supercharged. Tap in, or tap out.
           </p>
           <div className="mt-10 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
-            <HardcoreButton>
-              <span>LAUNCH THE AGENT</span> <span className="text-hardcore-pink">🔥</span>
-            </HardcoreButton>
+            <Link to="/agent">
+              <HardcoreButton>
+                <span>LAUNCH THE AGENT</span> <span className="text-hardcore-pink">🔥</span>
+              </HardcoreButton>
+            </Link>
           </div>
         </div>
       </section>
