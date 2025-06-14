@@ -1,9 +1,9 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import HardcoreButton from "@/components/HardcoreButton";
 import { Textarea } from "@/components/ui/textarea";
 import { ChatMessage, Message } from "@/components/ChatMessage";
 import { Send, Loader } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 // --- DEV-ONLY: Hardcoded Keys ---
 // WARNING: Do NOT use these in production. These should be moved to a secure
