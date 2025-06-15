@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      assistant_messages: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          file_url: string | null
+          id: string
+          role: string | null
+          thread_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          file_url?: string | null
+          id?: string
+          role?: string | null
+          thread_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          file_url?: string | null
+          id?: string
+          role?: string | null
+          thread_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       crm_profiles: {
         Row: {
           ai_stack: string[] | null

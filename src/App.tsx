@@ -14,6 +14,7 @@ import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import { AuthProvider } from "./contexts/AuthProvider";
 import ProfileSetup from "./pages/ProfileSetup";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
               <Route path="/reports" element={<Reports />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/profile-setup" element={<ProfileSetup />} />
+              <Route path="/admin" element={<Admin />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>

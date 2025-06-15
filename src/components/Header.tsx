@@ -53,6 +53,18 @@ const Header = () => {
                 {item.name}
               </NavLink>
             ))}
+            {user && (
+              <NavLink
+                to="/admin"
+                className={({ isActive }) =>
+                  `text-sm font-semibold uppercase tracking-wider transition-colors ${
+                    isActive ? 'text-hardcore-pink' : 'text-gray-300 hover:text-white'
+                  }`
+                }
+              >
+                Admin
+              </NavLink>
+            )}
           </nav>
           <div className="hidden md:flex items-center space-x-4">
             {loading ? (
