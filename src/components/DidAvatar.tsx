@@ -1,9 +1,15 @@
+
 import React, { useEffect, useId } from 'react';
+import { cn } from '@/lib/utils';
 
 const D_ID_CLIENT_KEY = "Z29vZ2xlLW9hdXRoMnwxMTcyNTE3Njg5MDA0MjIzMjcxNjA6SlNNYjhERkg0ZUdtdGtWU2x2OUV1";
 const D_ID_AGENT_ID = "agt_Mkg6uSug";
 
-const DidAvatar = () => {
+interface DidAvatarProps {
+    isSpeaking?: boolean;
+}
+
+const DidAvatar = ({ isSpeaking }: DidAvatarProps) => {
     const uniqueId = useId();
     const containerId = `did-agent-container-${uniqueId}`;
 
@@ -41,11 +47,13 @@ const DidAvatar = () => {
         };
     }, [containerId]);
 
-    // This container is where the D-ID agent will be rendered.
     return (
         <div 
             id={containerId} 
-            className="relative w-64 h-64 mx-auto border-4 border-hardcore-pink rounded-full shadow-2xl shadow-hardcore-pink/30 overflow-hidden" 
+            className={cn(
+                "relative w-64 h-64 mx-auto border-4 border-hardcore-pink rounded-full shadow-2xl shadow-hardcore-pink/30 overflow-hidden transition-all duration-300",
+                isSpeaking && "border-green-400 shadow-green-400/50 scale-105"
+            )} 
             aria-label="D-ID Agent Container"
         />
     );

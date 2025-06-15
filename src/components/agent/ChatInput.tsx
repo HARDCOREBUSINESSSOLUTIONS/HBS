@@ -2,7 +2,7 @@
 import React from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import HardcoreButton from '@/components/HardcoreButton';
-import { Send, Paperclip, X } from 'lucide-react';
+import { Send, Paperclip, X, Mic, MicOff } from 'lucide-react';
 
 interface ChatInputProps {
   input: string;
@@ -13,6 +13,9 @@ interface ChatInputProps {
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   fileInputRef: React.RefObject<HTMLInputElement>;
+  isConnected: boolean;
+  connect: () => void;
+  disconnect: () => void;
 }
 
 const ChatInput = ({
@@ -24,47 +27,66 @@ const ChatInput = ({
   handleSubmit,
   handleFileChange,
   fileInputRef,
+  isConnected,
+  connect,
+  disconnect,
 }: ChatInputProps) => {
+  const handleTextSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    if (isConnected) return;
+    handleSubmit(e);
+  };
+
   return (
     <div className="flex-shrink-0">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+      <form onSubmit={handleTextSubmit} className="flex flex-col gap-2">
          <div className="flex items-end gap-2">
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Brief the agent... or just upload a file."
+            placeholder={isConnected ? "Listening for your command..." : "Brief the agent... or just upload a file."}
             className="flex-1 resize-none bg-cyber-indigo border-hardcore-pink/30 text-white placeholder:text-gray-500 focus:ring-hardcore-pink focus:ring-offset-deep-black"
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
+              if (e.key === 'Enter' && !e.shiftKey && !isConnected) {
                 e.preventDefault();
-                handleSubmit(e as any); // Form submit on Enter
+                handleSubmit(e as any);
               }
             }}
             rows={1}
-            disabled={isLoading}
+            disabled={isLoading || isConnected}
+            readOnly={isConnected}
           />
           <input
             type="file"
             ref={fileInputRef}
             onChange={handleFileChange}
             className="hidden"
-            disabled={isLoading}
+            disabled={isLoading || isConnected}
           />
            <HardcoreButton
               type="button"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={isConnected ? disconnect : connect}
               disabled={isLoading}
+              className="p-3 h-full"
+              size="icon"
+              aria-label={isConnected ? "Disconnect voice" : "Connect voice"}
+            >
+              {isConnected ? <MicOff size={20} className="text-red-500" /> : <Mic size={20} />}
+          </HardcoreButton>
+           <HardcoreButton
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isLoading || isConnected}
               className="p-3 h-full"
               size="icon"
               aria-label="Attach file"
             >
               <Paperclip size={20} />
           </HardcoreButton>
-          <HardcoreButton type="submit" disabled={isLoading || (!input.trim() && !file)} className="p-3 h-full" size="icon" aria-label="Send message">
+          <HardcoreButton type="submit" disabled={isLoading || (!input.trim() && !file) || isConnected} className="p-3 h-full" size="icon" aria-label="Send message">
             <Send size={20} />
           </HardcoreButton>
         </div>
-        {file && (
+        {file && !isConnected && (
             <div className="flex items-center justify-between rounded-md border border-hardcore-pink/30 bg-cyber-indigo/50 p-2 pl-3 text-sm text-gray-300">
               <span>{file.name}</span>
               <button
