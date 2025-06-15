@@ -6,6 +6,7 @@ import { Send, Loader, Paperclip, X } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import OpenAI from 'openai';
 import { toast } from "sonner";
+import DidAvatar from "@/components/DidAvatar";
 
 // --- DEV-ONLY: Hardcoded Keys ---
 // WARNING: Do NOT use these in production. This is a major security risk.
@@ -146,7 +147,8 @@ const Agent = () => {
 
   return (
     <div className="container mx-auto flex h-[calc(100vh-140px)] max-h-[900px] flex-col py-8">
-      <h1 className="font-heading text-4xl text-center text-white mb-2">HARDCORE DEV OPS</h1>
+      <DidAvatar />
+      <h1 className="font-heading text-4xl text-center text-white mt-4">HARDCORE DEV OPS</h1>
       <p className="text-center text-gray-400 mb-6">Talk to the machine. Upload a file for analysis.</p>
 
       <div className="flex-1 overflow-y-auto rounded-lg border border-hardcore-pink/20 bg-cyber-indigo/50 p-4" ref={chatContainerRef}>

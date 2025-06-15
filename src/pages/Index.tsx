@@ -1,6 +1,7 @@
 import HardcoreButton from "@/components/HardcoreButton";
 import { Zap, BrainCircuit, ShieldCheck, Cpu, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import DidAvatar from "@/components/DidAvatar";
 
 const services = [
   {
@@ -45,14 +46,13 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Avatar Section Placeholder */}
+      {/* Avatar Section */}
       <section className="py-20 bg-deep-black text-center">
          <div className="container mx-auto">
-            <div className="max-w-md mx-auto bg-cyber-indigo border border-hardcore-pink/20 rounded-xl p-8 shadow-2xl shadow-hardcore-pink/10">
-                <Cpu size={48} className="mx-auto text-hardcore-pink animate-glow" />
+            <DidAvatar />
+            <div className="max-w-xl mx-auto mt-8">
                 <h2 className="font-heading text-3xl text-white mt-4">AGENT ONLINE</h2>
-                <p className="text-gray-400 mt-2">D-ID Avatar Player embeds here. Ready to brief you on your company's new potential.</p>
-                 <p className="text-xs text-gray-500 mt-4 italic">To integrate, replace this div with your D-ID streaming code.</p>
+                <p className="text-gray-400 mt-2">Live briefing from your new AI team member. Interact with the agent to discover your company's new potential.</p>
             </div>
         </div>
       </section>
