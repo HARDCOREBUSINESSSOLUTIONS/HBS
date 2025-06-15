@@ -1,20 +1,14 @@
 import { useState, useRef, useEffect } from "react";
-import OpenAI from 'openai';
 import { toast } from "sonner";
 import { Message } from "@/components/ChatMessage";
+import { supabase } from "@/integrations/supabase/client";
 
 // --- DEV-ONLY: Hardcoded Keys ---
 // WARNING: Do NOT use these in production. This is a major security risk.
 // Your API key will be exposed to anyone visiting your site.
 // Use a secure backend (like a Supabase Edge Function) to handle API calls.
-const OPENAI_API_KEY: string = "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";
 // This is now the default public-facing assistant
 const DEFAULT_ASSISTANT_ID: string = "asst_hX6NQ7jnFaVB16Qohr5vyFVi";
-
-const openai = new OpenAI({
-  apiKey: OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true, // Required for browser-side usage
-});
 
 interface UseChatOptions {
   assistantId?: string;
@@ -39,17 +33,6 @@ export const useChat = (options: UseChatOptions = {}) => {
   const [threadId, setThreadId] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    const warningToast = document.querySelector('[data-sonner-toast][data-type="warning"]');
-    if (!warningToast) {
-        toast.warning("Security Alert: API Key Exposed", {
-          description: "This is for development testing only. Do not deploy with keys in frontend code.",
-          duration: Infinity,
-          dismissible: false,
-        });
-    }
-  }, []);
 
   useEffect(() => {
     chatContainerRef.current?.scrollTo({
@@ -84,66 +67,42 @@ export const useChat = (options: UseChatOptions = {}) => {
     setIsLoading(true);
 
     try {
-      let fileId: string | null = null;
+      const formData = new FormData();
+      formData.append('input', currentInput.trim() || `Attached file: ${currentFile?.name}`);
+      formData.append('assistantId', assistantId);
+      if (threadId) {
+        formData.append('threadId', threadId);
+      }
       if (currentFile) {
         toast.info(`Uploading ${currentFile.name}...`);
-        const openaiFile = await openai.files.create({
-          file: currentFile,
-          purpose: 'assistants',
-        });
-        fileId = openaiFile.id;
+        formData.append('file', currentFile);
+      }
+
+      const { data, error } = await supabase.functions.invoke('openai-assistant-chat', {
+        body: formData,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (currentFile) {
         toast.success(`${currentFile.name} uploaded successfully!`);
       }
 
-      const currentThreadId = threadId ?? (await openai.beta.threads.create()).id;
-      if (!threadId) {
-        setThreadId(currentThreadId);
-      }
+      const { assistantResponse, newThreadId } = data;
       
-      const messageData: OpenAI.Beta.Threads.Messages.MessageCreateParams = {
-        role: 'user',
-        // Provide default content if only a file is sent
-        content: currentInput.trim() || `Attached file: ${currentFile?.name}`,
-      };
-      
-      if (fileId) {
-        messageData.attachments = [{ file_id: fileId, tools: [{ type: "file_search" }] }];
+      if (newThreadId && !threadId) {
+        setThreadId(newThreadId);
       }
 
-      await openai.beta.threads.messages.create(currentThreadId, messageData);
-
-      const run = await openai.beta.threads.runs.create(currentThreadId, {
-        assistant_id: assistantId, // Use the configured assistantId
-      });
-
-      let runStatus = await openai.beta.threads.runs.retrieve(currentThreadId, run.id);
-      while (runStatus.status !== "completed") {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        runStatus = await openai.beta.threads.runs.retrieve(currentThreadId, run.id);
-
-        if (['failed', 'cancelled', 'expired'].includes(runStatus.status)) {
-          throw new Error(`Run failed with status: ${runStatus.status}`);
-        }
-      }
-
-      const threadMessages = await openai.beta.threads.messages.list(currentThreadId);
-      const assistantResponse = threadMessages.data.find(
-        (m) => m.run_id === run.id && m.role === "assistant"
-      );
-
-      if (assistantResponse && assistantResponse.content[0].type === 'text') {
-        const assistantMessage: Message = {
-          role: "assistant",
-          content: assistantResponse.content[0].text.value.replace(/【\d+†source】/g, ''),
-        };
-        setMessages((prev) => [...prev, assistantMessage]);
+      if (assistantResponse) {
+        setMessages((prev) => [...prev, assistantResponse]);
       } else {
-        // If there's no text response, maybe there's just an action.
-        // For now, we'll consider it an incomplete response.
         setMessages((prev) => [...prev, {role: "assistant", content: "Processing complete."}]);
       }
     } catch (error) {
-      console.error("OpenAI API Error:", error);
+      console.error("Supabase Function Error:", error);
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
       toast.error(`Error: ${errorMessage}`);
       setMessages(prev => prev.slice(0, -1)); // Revert optimistic UI update
