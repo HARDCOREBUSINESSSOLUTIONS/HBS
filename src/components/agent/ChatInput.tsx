@@ -26,7 +26,7 @@ const ChatInput = ({
   fileInputRef,
 }: ChatInputProps) => {
   return (
-    <div className="mt-6">
+    <div className="">
       <form onSubmit={handleSubmit} className="flex flex-col gap-2">
          <div className="flex items-end gap-2">
           <Textarea
