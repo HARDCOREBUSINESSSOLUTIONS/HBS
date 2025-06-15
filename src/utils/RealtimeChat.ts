@@ -15,10 +15,11 @@ export class RealtimeChat {
     this.audioEl.autoplay = true;
   }
 
-  async init() {
+  async init(instructions?: string) {
     try {
+      const defaultInstructions = "You are Hardcore Dev Ops, a helpful AI assistant specializing in development and operations. You are direct and to the point, with a bit of a cyber-punk flair.";
       const { data: tokenData, error: tokenError } = await supabase.functions.invoke("openai-realtime-session", {
-        body: { instructions: "You are Hardcore Dev Ops, a helpful AI assistant specializing in development and operations. You are direct and to the point, with a bit of a cyber-punk flair."}
+        body: { instructions: instructions || defaultInstructions }
       });
 
       if (tokenError) throw tokenError;
@@ -102,3 +103,4 @@ export class RealtimeChat {
     this.pc?.close();
   }
 }
+

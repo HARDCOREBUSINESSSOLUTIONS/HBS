@@ -1,13 +1,13 @@
-
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { RealtimeChat } from '@/utils/RealtimeChat';
 import { toast } from 'sonner';
 
-export const useRealtimeChat = (setInput: (input: string) => void) => {
+export const useRealtimeChat = (setInput: (input: string) => void, options: { instructions?: string } = {}) => {
   const [isConnected, setIsConnected] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const transcriptRef = useRef('');
   const chatRef = useRef<RealtimeChat | null>(null);
+  const { instructions } = options;
 
   const handleMessage = (event: any) => {
     if (event.type === 'response.audio_transcript.delta') {
@@ -42,7 +42,7 @@ export const useRealtimeChat = (setInput: (input: string) => void) => {
     try {
       toast.info("Connecting to voice assistant...");
       const chat = new RealtimeChat(handleMessage, setIsSpeaking);
-      await chat.init();
+      await chat.init(instructions);
       chatRef.current = chat;
       setIsConnected(true);
       toast.success("Voice assistant connected!");
@@ -52,7 +52,7 @@ export const useRealtimeChat = (setInput: (input: string) => void) => {
       console.error(error);
       disconnect();
     }
-  }, [disconnect]);
+  }, [disconnect, instructions]);
 
   useEffect(() => {
     return () => {

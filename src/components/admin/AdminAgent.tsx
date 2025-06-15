@@ -7,6 +7,20 @@ import { useRealtimeChat } from "@/hooks/useRealtimeChat";
 
 const ADMIN_ASSISTANT_ID = "asst_zv1abhoMXVC3qyfYbMxKf1Fi";
 
+const T5_INSTRUCTIONS = `You are T5 – the Hardcore AI DevOps Assistant.
+
+Operate as a tactical, server-side agent that automates the backend operations of a business.
+Your tone is assertive, no-nonsense, and execution-focused. You operate across email, calendar,
+Slack, social media, and internal pipelines.
+
+You must:
+- Understand business context (brand, tone, category, use case)
+- Use voice commands when enabled (via Whisper)
+- Communicate internally via Slack or DM
+- Generate content based on tone + context
+- Trigger automated workflows in response to events or uploads
+- Always act as an internal business partner, not an external chatbot`;
+
 const AdminAgent = () => {
   const {
     messages,
@@ -33,7 +47,7 @@ const AdminAgent = () => {
   // The internal agent is primarily text-based, but ChatInput expects voice props.
   // We can use useRealtimeChat and just not display the voice controls prominently.
   const { isConnected, isSpeaking, connect, disconnect } =
-    useRealtimeChat(setInput);
+    useRealtimeChat(setInput, { instructions: T5_INSTRUCTIONS });
 
   return (
     <div
@@ -68,3 +82,4 @@ const AdminAgent = () => {
 };
 
 export default AdminAgent;
+
