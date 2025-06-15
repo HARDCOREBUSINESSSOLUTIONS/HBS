@@ -18,11 +18,15 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Function received a request.');
     const formData = await req.formData();
+    console.log('Form data parsed.');
+
     const input = formData.get('input') as string;
     const assistantId = formData.get('assistantId') as string;
     let threadId = formData.get('threadId') as string | null;
     const file = formData.get('file') as File | null;
+    console.log(`Input: "${input}", Assistant ID: ${assistantId}, Thread ID: ${threadId}, File: ${file?.name || 'none'}`);
 
     let fileId: string | null = null;
     if (file) {
@@ -37,6 +41,7 @@ serve(async (req) => {
 
     const isNewThread = !threadId;
     if (isNewThread) {
+      console.log('Creating new thread...');
       const thread = await openai.beta.threads.create();
       threadId = thread.id;
       console.log(`Created new thread with ID: ${threadId}`);
@@ -54,36 +59,53 @@ serve(async (req) => {
     await openai.beta.threads.messages.create(threadId!, messageData);
     console.log(`Added message to thread: ${input}`);
 
+    console.log('Creating run...');
     const run = await openai.beta.threads.runs.create(threadId!, {
       assistant_id: assistantId,
     });
     console.log(`Created run with ID: ${run.id}`);
 
     let runStatus = await openai.beta.threads.runs.retrieve(threadId!, run.id);
-    while (runStatus.status !== 'completed') {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+    console.log(`Initial run status: ${runStatus.status}`);
+
+    // Poll for completion with a more robust loop
+    while (runStatus.status === 'queued' || runStatus.status === 'in_progress') {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       runStatus = await openai.beta.threads.runs.retrieve(threadId!, run.id);
-
-      if (['failed', 'cancelled', 'expired'].includes(runStatus.status)) {
-        throw new Error(`Run failed with status: ${runStatus.status}`);
-      }
+      console.log(`Polling... Run status: ${runStatus.status}`);
     }
-    console.log(`Run ${run.id} completed.`);
 
-    const threadMessages = await openai.beta.threads.messages.list(threadId!);
+    if (runStatus.status !== 'completed') {
+      console.error(`Run did not complete. Final status: ${runStatus.status}`);
+      const errorDetails = runStatus.last_error ? `Details: ${runStatus.last_error.message}` : '';
+      throw new Error(`Run failed, was cancelled, or requires action. Status: ${runStatus.status}. ${errorDetails}`);
+    }
+    
+    console.log(`Run ${run.id} completed successfully.`);
+
+    console.log('Fetching thread messages...');
+    const threadMessages = await openai.beta.threads.messages.list(threadId!, {
+      order: 'desc',
+      limit: 20
+    });
+    console.log(`Found ${threadMessages.data.length} messages in thread.`);
+
     const lastAssistantMessage = threadMessages.data.find(
       (m) => m.run_id === run.id && m.role === 'assistant'
     );
     
     let assistantResponse = null;
-    if (lastAssistantMessage && lastAssistantMessage.content[0].type === 'text') {
+    if (lastAssistantMessage && lastAssistantMessage.content[0]?.type === 'text') {
       assistantResponse = {
         role: 'assistant',
         content: lastAssistantMessage.content[0].text.value.replace(/【\d+†source】/g, ''),
       };
-      console.log(`Retrieved assistant response: ${assistantResponse.content}`);
+      console.log(`Retrieved assistant response: "${assistantResponse.content.substring(0, 100)}..."`);
     } else {
-       console.log("No text response from assistant.");
+       console.log("No text response from assistant found for this run.");
+       if(lastAssistantMessage) {
+         console.log("Last assistant message content:", JSON.stringify(lastAssistantMessage.content));
+       }
     }
 
     const responsePayload = {
@@ -91,6 +113,7 @@ serve(async (req) => {
       newThreadId: isNewThread ? threadId : null,
     };
 
+    console.log('Sending response to client.');
     return new Response(JSON.stringify(responsePayload), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
