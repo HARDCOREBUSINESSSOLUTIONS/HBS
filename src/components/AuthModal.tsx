@@ -1,7 +1,7 @@
+
 import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import HardcoreButton from './HardcoreButton';
 import { Button } from './ui/button';
+import { cleanupAuthState } from '@/utils/authUtils';
 
 interface AuthModalProps {
   open: boolean;
@@ -24,9 +25,20 @@ const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('signin');
+
+  const handleTabChange = (value: string) => {
+    if (value === 'signin' || value === 'signup') {
+      setActiveTab(value);
+      setEmail('');
+      setPassword('');
+    }
+  };
 
   const handleSignInWithGoogle = async () => {
+    cleanupAuthState();
+    await supabase.auth.signOut({ scope: 'global' }).catch(console.error);
+
     setLoading(true);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -43,6 +55,9 @@ const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    cleanupAuthState();
+    await supabase.auth.signOut({ scope: 'global' }).catch(console.error);
+
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
@@ -50,13 +65,16 @@ const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
     } else {
       toast.success('Signed in successfully!');
       onOpenChange(false);
-      navigate('/profile-setup');
+      window.location.href = '/profile-setup';
     }
     setLoading(false);
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    cleanupAuthState();
+    await supabase.auth.signOut({ scope: 'global' }).catch(console.error);
+    
     setLoading(true);
     const { error } = await supabase.auth.signUp({ 
         email, 
@@ -83,7 +101,7 @@ const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
             Access your profile or create a new one to get started.
           </DialogDescription>
         </DialogHeader>
-        <Tabs defaultValue="signin" className="w-full">
+        <Tabs defaultValue="signin" value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-cyber-indigo/50">
             <TabsTrigger value="signin">Sign In</TabsTrigger>
             <TabsTrigger value="signup">Sign Up</TabsTrigger>

@@ -1,11 +1,12 @@
 
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import AuthModal from './AuthModal';
 import { toast } from 'sonner';
 import HardcoreButton from './HardcoreButton';
+import { cleanupAuthState } from '@/utils/authUtils';
 
 const navItems = [
   { name: 'About', href: '/about' },
@@ -18,16 +19,16 @@ const navItems = [
 const Header = () => {
   const { user, loading } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const navigate = useNavigate();
 
   const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut();
+    cleanupAuthState();
+    const { error } = await supabase.auth.signOut({ scope: 'global' });
     if (error) {
       toast.error('Sign out failed: ' + error.message);
     } else {
       toast.success('Signed out successfully.');
-      navigate('/');
     }
+    window.location.href = '/';
   };
 
   return (
