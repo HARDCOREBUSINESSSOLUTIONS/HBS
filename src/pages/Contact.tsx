@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,7 +27,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import HardcoreButton from "@/components/HardcoreButton";
 import MultiTagInput from "@/components/crm/MultiTagInput";
 import CrmSummary from "@/components/crm/CrmSummary";
-import { Loader2 } from "lucide-react";
+import { Loader2, Terminal } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -47,6 +50,7 @@ type CrmProfile = Tables<'crm_profiles'>;
 const Contact = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [submittedProfile, setSubmittedProfile] = useState<Partial<CrmProfile>>({});
+  const [lastError, setLastError] = useState<any>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -68,6 +72,7 @@ const Contact = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     setSubmittedProfile(values); // Optimistically update summary
+    setLastError(null);
 
     try {
       const { data, error } = await supabase.functions.invoke('crm-profile-add', {
@@ -77,18 +82,24 @@ const Contact = () => {
       if (error) throw error;
 
       if (data.error) { // Handle application-level error from function
+        setLastError(data.details || data.error);
         throw new Error(data.error);
       }
 
-      toast.success("Profile Acquired", {
-        description: "New lead data has been logged to the database.",
+      toast.success("Profile Acquired & Synced", {
+        description: "New lead data has been logged to Airtable.",
       });
-      setSubmittedProfile(data); // Update summary with final data from DB
-      form.reset(); // Clear form
+      // Assuming Airtable returns the created record in a `records` array
+      if (data.records && data.records.length > 0) {
+        setSubmittedProfile(data.records[0].fields);
+      } else {
+        setSubmittedProfile(data);
+      }
+      form.reset();
     } catch (error: any) {
       console.error("Error submitting CRM profile:", error);
-      const errorMessage = error.message.includes('A profile with this email already exists')
-        ? "A profile with this email already exists."
+      const errorMessage = error.message.includes('Airtable mapping failed')
+        ? error.message
         : "Failed to submit profile. Check console for details.";
 
       toast.error("Submission Failed", {
@@ -314,6 +325,26 @@ const Contact = () => {
             </HardcoreButton>
           </form>
         </Form>
+        {lastError && (
+            <Alert variant="destructive" className="mt-6">
+                <Terminal className="h-4 w-4" />
+                <AlertTitle>Airtable Sync Failed</AlertTitle>
+                <AlertDescription>
+                    <p>Check your field names and types in Airtable. See the error log for details.</p>
+                    <pre className="mt-2 w-full whitespace-pre-wrap break-all rounded-md bg-slate-950 p-4 font-mono text-sm text-white">
+                        {JSON.stringify(lastError, null, 2)}
+                    </pre>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-4"
+                        onClick={() => navigator.clipboard.writeText(JSON.stringify(lastError, null, 2))}
+                    >
+                        Copy Error Log
+                    </Button>
+                </AlertDescription>
+            </Alert>
+        )}
         <CrmSummary profile={submittedProfile} />
       </div>
     </div>

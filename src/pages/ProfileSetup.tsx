@@ -34,6 +34,7 @@ const ProfileSetup = () => {
         newsletter_opt_in: false,
     });
     const [resendLoading, setResendLoading] = useState(false);
+    const [submissionError, setSubmissionError] = useState<any>(null);
 
     useEffect(() => {
         if (!authLoading && !user) {
@@ -71,6 +72,7 @@ const ProfileSetup = () => {
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
+        setSubmissionError(null);
         
         if (!profile.email || !profile.name) {
             toast.error('TARGET IDENTIFICATION FAILURE. Name and email are mandatory.');
@@ -81,25 +83,25 @@ const ProfileSetup = () => {
         toast.info('TRANSMITTING PROFILE DATA...');
         
         try {
-            const response = await fetch(`https://cyxufdzkpouwypgxibxo.supabase.co/functions/v1/crm-profile-add`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN5eHVmZHprcG91d3lwZ3hpYnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk5MTA5OTgsImV4cCI6MjA2NTQ4Njk5OH0.HNUTvJvTdWTwTgcLxNdhW-_x47GJP_P-BnGCi5Adx4k`,
-                },
-                body: JSON.stringify(submissionData),
+            const { data, error } = await supabase.functions.invoke('crm-profile-add', {
+                body: submissionData,
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `Server error: ${response.status}`);
+            if (error) {
+                setSubmissionError({ message: error.message, context: error.context });
+                throw new Error(error.message);
             }
 
-            const result = await response.json();
-            toast.success('PROFILE ACQUIRED. Stand by for analysis.');
+            if (data.error) {
+                setSubmissionError(data.details || data.error);
+                throw new Error(data.error);
+            }
+
+            toast.success('PROFILE ACQUIRED & SYNCED. Intel logged to Airtable.');
             navigate('/'); // Redirect to home after successful submission
         } catch (error: any) {
-            toast.error(`Submission failed: ${error.message}`);
+            toast.error('Airtable mapping failed – check field names/types, see logs for details.');
+            console.error("Error submitting profile:", error);
         }
     };
     
@@ -202,6 +204,26 @@ const ProfileSetup = () => {
                          <HardcoreButton type="submit" className="w-full">
                             Submit Profile
                         </HardcoreButton>
+                         {submissionError && (
+                            <Alert variant="destructive" className="mt-4">
+                                <Terminal className="h-4 w-4" />
+                                <AlertTitle>Submission Error</AlertTitle>
+                                <AlertDescription>
+                                     <p>Check your field names and types in Airtable. See the error log for details.</p>
+                                    <pre className="mt-2 w-full whitespace-pre-wrap break-all rounded-md bg-slate-950 p-4 font-mono text-sm text-white">
+                                        {JSON.stringify(submissionError, null, 2)}
+                                    </pre>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="mt-2 bg-transparent hover:bg-hardcore-pink/20"
+                                        onClick={() => navigator.clipboard.writeText(JSON.stringify(submissionError, null, 2))}
+                                    >
+                                        Copy Error Log
+                                    </Button>
+                                </AlertDescription>
+                            </Alert>
+                        )}
                     </form>
                     <CrmSummary profile={profile} />
                 </div>
