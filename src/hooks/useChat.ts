@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import OpenAI from 'openai';
 import { toast } from "sonner";
@@ -9,20 +8,31 @@ import { Message } from "@/components/ChatMessage";
 // Your API key will be exposed to anyone visiting your site.
 // Use a secure backend (like a Supabase Edge Function) to handle API calls.
 const OPENAI_API_KEY: string = "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";
-const ASSISTANT_ID: string = "asst_hX6NQ7jnFaVB16Qohr5vyFVi";
+// This is now the default public-facing assistant
+const DEFAULT_ASSISTANT_ID: string = "asst_hX6NQ7jnFaVB16Qohr5vyFVi";
 
 const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
   dangerouslyAllowBrowser: true, // Required for browser-side usage
 });
 
-export const useChat = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "assistant",
-      content: "Hardcore Dev Ops online. How can I help you dominate your business operations today?",
-    },
-  ]);
+interface UseChatOptions {
+  assistantId?: string;
+  initialMessages?: Message[];
+}
+
+export const useChat = (options: UseChatOptions = {}) => {
+  const { 
+    assistantId = DEFAULT_ASSISTANT_ID,
+    initialMessages = [
+      {
+        role: "assistant",
+        content: "Hardcore Dev Ops online. How can I help you dominate your business operations today?",
+      },
+    ]
+  } = options;
+
+  const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -31,11 +41,14 @@ export const useChat = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    toast.warning("Security Alert: API Key Exposed", {
-      description: "This is for development testing only. Do not deploy with keys in frontend code.",
-      duration: Infinity,
-      dismissible: false,
-    });
+    const warningToast = document.querySelector('[data-sonner-toast][data-type="warning"]');
+    if (!warningToast) {
+        toast.warning("Security Alert: API Key Exposed", {
+          description: "This is for development testing only. Do not deploy with keys in frontend code.",
+          duration: Infinity,
+          dismissible: false,
+        });
+    }
   }, []);
 
   useEffect(() => {
@@ -100,7 +113,7 @@ export const useChat = () => {
       await openai.beta.threads.messages.create(currentThreadId, messageData);
 
       const run = await openai.beta.threads.runs.create(currentThreadId, {
-        assistant_id: ASSISTANT_ID,
+        assistant_id: assistantId, // Use the configured assistantId
       });
 
       let runStatus = await openai.beta.threads.runs.retrieve(currentThreadId, run.id);

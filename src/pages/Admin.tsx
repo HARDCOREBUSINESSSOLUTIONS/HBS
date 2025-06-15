@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
+import AdminAgent from "@/components/admin/AdminAgent";
 
 const Admin = () => {
     const { user, loading } = useAuth();
@@ -46,6 +47,10 @@ const Admin = () => {
                     <WidgetCard title="AI Agent Performance">
                         <p className="text-gray-300">Avg. Response: <span className="text-cyan-400 font-bold">1.2s</span></p>
                     </WidgetCard>
+                </div>
+
+                <div className="mt-8 animate-fade-in-up" style={{animationDelay: '0.4s'}}>
+                    <AdminAgent />
                 </div>
             </div>
         </div>
