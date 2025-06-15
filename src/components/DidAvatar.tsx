@@ -1,77 +1,44 @@
 
-import React, { useEffect, useRef } from 'react';
-import { Client, IConnection } from '@d-id/client-sdk';
+import React, { useEffect } from 'react';
 
-// TODO: Move API Key to a secure backend/environment variable
-const D_ID_API_KEY = "Z29vZ2xlLW9hdXRoMnwxMTcyNTE3Njg5MDA0MjIzMjcxNjA6SlNNYjhERkg0ZUdtdGtWU2x2OUV1";
+// Using the key and agent ID from the script snippet you provided.
+const D_ID_CLIENT_KEY = "Z29vZ2xlLW9hdXRoMnwxMTcyNTE3Njg5MDA0MjIzMjcxNjA6SlNNYjhERkg0ZUdtdGtWU2x2OUV1";
+const D_ID_AGENT_ID = "agt_Mkg6uSug";
 
 const DidAvatar = () => {
-    const videoRef = useRef<HTMLVideoElement>(null);
-    const connectionRef = useRef<IConnection | null>(null);
-
     useEffect(() => {
-        const connectToDid = async () => {
-            if (!videoRef.current) return;
+        // Prevent adding multiple scripts if the component re-renders.
+        if (document.querySelector('script[data-name="did-agent"]')) {
+            return;
+        }
 
-            try {
-                console.log('Attempting to connect to D-ID...');
-                const didClient = new Client({ key: D_ID_API_KEY });
-                
-                const connection = await didClient.connect({
-                    // Using a stock avatar for now. We can change this later.
-                    source_url: "https://cdn.d-id.com/avatars/fun_creation/chunks/proj_r4HxPSaNEp4aJcvoHl3fr/alan.jpeg"
-                });
-                connectionRef.current = connection;
-                console.log('D-ID connection established.');
+        const script = document.createElement('script');
+        script.type = 'module';
+        script.src = 'https://agent.d-id.com/v1/index.js';
+        script.dataset.name = 'did-agent';
+        script.dataset.mode = 'fabio'; // This likely creates a floating avatar
+        script.dataset.clientKey = D_ID_CLIENT_KEY;
+        script.dataset.agentId = D_ID_AGENT_ID;
+        script.dataset.monitor = 'true';
 
-                connection.on('stream:ready', stream => {
-                    if (videoRef.current) {
-                        videoRef.current.srcObject = stream;
-                    }
-                    console.log('D-ID stream is ready.');
-                    
-                    connection.speak({
-                        type: 'text',
-                        input: 'Hardcore Dev Ops agent is online. How can I help you dominate?'
-                    });
-                });
-
-                connection.on('stream:error', (error) => {
-                    console.error('D-ID stream error:', error);
-                });
-
-                connection.on('connection:error', (error) => {
-                    console.error('D-ID connection error:', error);
-                });
-
-            } catch (error) {
-                console.error('Failed to initialize D-ID connection:', error);
-            }
-        };
-
-        connectToDid();
+        document.body.appendChild(script);
 
         return () => {
-            if (connectionRef.current) {
-                console.log('Closing D-ID connection.');
-                connectionRef.current.close();
-                connectionRef.current = null;
+            // Clean up by removing the script and the agent element when the component is unmounted.
+            const existingScript = document.querySelector('script[data-name="did-agent"]');
+            if (existingScript) {
+                document.body.removeChild(existingScript);
+            }
+            const agentElement = document.querySelector('did-agent');
+            if (agentElement) {
+                agentElement.remove();
             }
         };
     }, []);
 
-    return (
-        <div className="relative w-64 h-64 mx-auto">
-            <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                className="w-full h-full rounded-full object-cover border-4 border-hardcore-pink shadow-2xl shadow-hardcore-pink/30"
-                style={{ transform: 'scaleX(-1)' }} /* Flip video horizontally for a more natural look */
-            />
-            <div className="absolute inset-0 rounded-full border-4 border-hardcore-pink/50 animate-pulse"></div>
-        </div>
-    );
+    // The script will likely inject a floating avatar, but we'll return a placeholder 
+    // to maintain the page layout where the avatar was.
+    return <div className="relative w-64 h-64 mx-auto" aria-label="D-ID Agent Container"></div>;
 };
 
 export default DidAvatar;
