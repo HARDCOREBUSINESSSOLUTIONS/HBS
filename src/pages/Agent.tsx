@@ -20,29 +20,31 @@ const Agent = () => {
   } = useChat();
 
   return (
-    <div className="container mx-auto flex h-[calc(100vh-140px)] max-h-[900px] flex-col gap-6 py-8">
-      <div className="flex-shrink-0">
-        <DidAvatar />
-        <h1 className="font-heading text-4xl text-center text-white mt-4">HARDCORE DEV OPS</h1>
-        <p className="text-center text-gray-400">Talk to the machine. Upload a file for analysis.</p>
-      </div>
+    <div className="h-full flex flex-col">
+      <div className="container mx-auto flex flex-1 flex-col gap-6 py-8 overflow-hidden">
+        <div className="flex-shrink-0">
+          <DidAvatar />
+          <h1 className="font-heading text-4xl text-center text-white mt-4">HARDCORE DEV OPS</h1>
+          <p className="text-center text-gray-400">Talk to the machine. Upload a file for analysis.</p>
+        </div>
 
-      <div className="flex flex-1 flex-col gap-4 overflow-hidden min-h-0">
-        <ChatDisplay
-          messages={messages}
-          isLoading={isLoading}
-          chatContainerRef={chatContainerRef}
-        />
-        <ChatInput
-          input={input}
-          setInput={setInput}
-          file={file}
-          setFile={setFile}
-          isLoading={isLoading}
-          handleSubmit={handleSubmit}
-          handleFileChange={handleFileChange}
-          fileInputRef={fileInputRef}
-        />
+        <div className="flex flex-1 flex-col gap-4 overflow-hidden min-h-0">
+          <ChatDisplay
+            messages={messages}
+            isLoading={isLoading}
+            chatContainerRef={chatContainerRef}
+          />
+          <ChatInput
+            input={input}
+            setInput={setInput}
+            file={file}
+            setFile={setFile}
+            isLoading={isLoading}
+            handleSubmit={handleSubmit}
+            handleFileChange={handleFileChange}
+            fileInputRef={fileInputRef}
+          />
+        </div>
       </div>
     </div>
   );
