@@ -1,4 +1,3 @@
-
 import React, { useEffect, useId } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -28,7 +27,6 @@ const DidAvatar = ({ isSpeaking }: DidAvatarProps) => {
         script.type = 'module';
         script.src = 'https://agent.d-id.com/v1/index.js';
         script.dataset.name = 'did-agent';
-        script.dataset.mode = 'page'; // Embed in a container
         script.dataset.containerId = containerId;
         script.dataset.clientKey = D_ID_CLIENT_KEY;
         script.dataset.agentId = D_ID_AGENT_ID;
