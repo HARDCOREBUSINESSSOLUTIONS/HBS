@@ -27,13 +27,12 @@ const Agent = () => {
         <p className="text-center text-gray-400">Talk to the machine. Upload a file for analysis.</p>
       </div>
 
-      <ChatDisplay
-        messages={messages}
-        isLoading={isLoading}
-        chatContainerRef={chatContainerRef}
-      />
-
-      <div className="flex-shrink-0">
+      <div className="flex flex-1 flex-col gap-4 overflow-hidden min-h-0">
+        <ChatDisplay
+          messages={messages}
+          isLoading={isLoading}
+          chatContainerRef={chatContainerRef}
+        />
         <ChatInput
           input={input}
           setInput={setInput}
