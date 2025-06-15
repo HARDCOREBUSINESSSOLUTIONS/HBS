@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { Message } from "@/components/ChatMessage";
@@ -86,6 +87,12 @@ export const useChat = (options: UseChatOptions = {}) => {
         throw error;
       }
 
+      // Add a more robust check for the data payload
+      if (!data || typeof data.assistantResponse === 'undefined') {
+        console.error("Invalid response payload from function:", data);
+        throw new Error("Received an invalid response from the server.");
+      }
+
       if (currentFile) {
         toast.success(`${currentFile.name} uploaded successfully!`);
       }
@@ -96,18 +103,34 @@ export const useChat = (options: UseChatOptions = {}) => {
         setThreadId(newThreadId);
       }
 
-      if (assistantResponse) {
+      if (assistantResponse && assistantResponse.content) {
         setMessages((prev) => [...prev, assistantResponse]);
       } else {
-        setMessages((prev) => [...prev, {role: "assistant", content: "Processing complete."}]);
+        // Provide a clearer message if the assistant gives an empty response
+        setMessages((prev) => [...prev, {role: "assistant", content: "I've processed the request. How can I help you further?"}]);
       }
     } catch (error) {
       console.error("Supabase Function Error:", error);
-      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+      let errorMessage = "An unknown error occurred.";
+
+      if (error instanceof Error) {
+        // Edge functions can return errors as a JSON string in the message
+        try {
+          const parsed = JSON.parse(error.message);
+          errorMessage = parsed.error || parsed.message || error.message;
+        } catch {
+          errorMessage = error.message;
+        }
+      } else if (typeof error === 'object' && error !== null) {
+        errorMessage = (error as any).message || JSON.stringify(error);
+      }
+      
       toast.error(`Error: ${errorMessage}`);
-      setMessages(prev => prev.slice(0, -1)); // Revert optimistic UI update
+      
+      // Revert optimistic UI update
+      setMessages(prev => prev.slice(0, -1));
       setInput(currentInput);
-      setFile(currentFile); // Revert file selection on error
+      setFile(currentFile);
     } finally {
       setIsLoading(false);
     }
