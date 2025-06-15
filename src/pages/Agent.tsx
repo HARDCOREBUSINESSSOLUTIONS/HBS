@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import HardcoreButton from "@/components/HardcoreButton";
 import { Textarea } from "@/components/ui/textarea";
@@ -151,7 +152,7 @@ const Agent = () => {
       <h1 className="font-heading text-4xl text-center text-white mt-4">HARDCORE DEV OPS</h1>
       <p className="text-center text-gray-400 mb-6">Talk to the machine. Upload a file for analysis.</p>
 
-      <div className="flex-1 overflow-y-auto rounded-lg border border-hardcore-pink/20 bg-cyber-indigo/50 p-4" ref={chatContainerRef}>
+      <div className="flex-1 min-h-0 overflow-y-auto rounded-lg border border-hardcore-pink/20 bg-cyber-indigo/50 p-4" ref={chatContainerRef}>
         <div className="flex flex-col gap-4">
           {messages.map((msg, index) => (
             <ChatMessage key={index} message={msg} />
