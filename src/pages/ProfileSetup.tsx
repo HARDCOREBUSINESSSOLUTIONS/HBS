@@ -1,3 +1,4 @@
+
 import React, { useState, FormEvent, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +13,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Terminal } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const ProfileSetup = () => {
     const { user, loading: authLoading } = useAuth();
@@ -25,6 +28,7 @@ const ProfileSetup = () => {
         current_tools: [],
         desired_outcomes: [],
         workflow_stage: '',
+        ai_stack: [],
         keywords: [],
         tags: [],
         newsletter_opt_in: false,
@@ -145,6 +149,25 @@ const ProfileSetup = () => {
                             <Input id="business_name" type="text" value={profile.business_name || ''} onChange={handleFieldChange} placeholder="Acme Corporation" />
                         </div>
                         <div>
+                            <Label htmlFor="industry">Industry</Label>
+                            <Input id="industry" type="text" value={profile.industry || ''} onChange={handleFieldChange} placeholder="e.g., SaaS, E-commerce" />
+                        </div>
+                        <div>
+                          <Label htmlFor="workflow_stage">Current Stage</Label>
+                          <Select onValueChange={(value) => setProfile(prev => ({...prev, workflow_stage: value}))} value={profile.workflow_stage || ''}>
+                              <SelectTrigger id="workflow_stage">
+                                  <SelectValue placeholder="Select your current workflow stage" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                  <SelectItem value="discovery">Discovery / Idea</SelectItem>
+                                  <SelectItem value="mvp">MVP / Prototyping</SelectItem>
+                                  <SelectItem value="scaling">Scaling / Growth</SelectItem>
+                                  <SelectItem value="optimization">Optimization</SelectItem>
+                                  <SelectItem value="enterprise">Enterprise</SelectItem>
+                              </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
                           <Label htmlFor="pain_points">Pain Points</Label>
                           <MultiTagInput value={profile.pain_points || []} onChange={handleTagsChange('pain_points')} placeholder="e.g., slow growth, high costs" />
                         </div>
@@ -155,6 +178,26 @@ const ProfileSetup = () => {
                         <div>
                           <Label htmlFor="desired_outcomes">Desired Outcomes</Label>
                           <MultiTagInput value={profile.desired_outcomes || []} onChange={handleTagsChange('desired_outcomes')} placeholder="e.g., automate sales, double leads" />
+                        </div>
+                        <div>
+                          <Label htmlFor="ai_stack">Current AI Stack</Label>
+                          <MultiTagInput value={profile.ai_stack as string[] || []} onChange={handleTagsChange('ai_stack')} placeholder="e.g., OpenAI API, LangChain" />
+                        </div>
+                        <div>
+                          <Label htmlFor="tags">Tags</Label>
+                          <MultiTagInput value={profile.tags as string[] || []} onChange={handleTagsChange('tags')} placeholder="e.g., B2B, enterprise" />
+                        </div>
+                        <div className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 border-hardcore-pink/30">
+                            <Checkbox
+                                id="newsletter_opt_in"
+                                checked={profile.newsletter_opt_in}
+                                onCheckedChange={(checked) => setProfile(prev => ({...prev, newsletter_opt_in: !!checked}))}
+                            />
+                            <div className="space-y-1 leading-none">
+                                <Label htmlFor="newsletter_opt_in">
+                                    Authorize intel briefings (Join Newsletter)
+                                </Label>
+                            </div>
                         </div>
                          <HardcoreButton type="submit" className="w-full">
                             Submit Profile
