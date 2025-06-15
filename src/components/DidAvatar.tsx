@@ -1,22 +1,29 @@
+import React, { useEffect, useId } from 'react';
 
-import React, { useEffect } from 'react';
-
-// Using the key and agent ID from the script snippet you provided.
 const D_ID_CLIENT_KEY = "Z29vZ2xlLW9hdXRoMnwxMTcyNTE3Njg5MDA0MjIzMjcxNjA6SlNNYjhERkg0ZUdtdGtWU2x2OUV1";
 const D_ID_AGENT_ID = "agt_Mkg6uSug";
 
 const DidAvatar = () => {
-    useEffect(() => {
-        // Prevent adding multiple scripts if the component re-renders.
-        if (document.querySelector('script[data-name="did-agent"]')) {
-            return;
-        }
+    const uniqueId = useId();
+    const containerId = `did-agent-container-${uniqueId}`;
 
+    useEffect(() => {
+        // The D-ID script manages a single agent instance.
+        // To ensure it works correctly with SPA navigation, we'll remove any
+        // existing agent and script before creating a new one for this component.
+        const existingScript = document.querySelector('script[data-name="did-agent"]');
+        if (existingScript) existingScript.remove();
+        
+        const agentElement = document.querySelector('did-agent');
+        if (agentElement) agentElement.remove();
+
+        // Create and append the new script for the current component instance
         const script = document.createElement('script');
         script.type = 'module';
         script.src = 'https://agent.d-id.com/v1/index.js';
         script.dataset.name = 'did-agent';
-        script.dataset.mode = 'fabio'; // This likely creates a floating avatar
+        script.dataset.mode = 'page'; // Embed in a container
+        script.dataset.containerId = containerId;
         script.dataset.clientKey = D_ID_CLIENT_KEY;
         script.dataset.agentId = D_ID_AGENT_ID;
         script.dataset.monitor = 'true';
@@ -24,21 +31,24 @@ const DidAvatar = () => {
         document.body.appendChild(script);
 
         return () => {
-            // Clean up by removing the script and the agent element when the component is unmounted.
-            const existingScript = document.querySelector('script[data-name="did-agent"]');
-            if (existingScript) {
-                document.body.removeChild(existingScript);
-            }
-            const agentElement = document.querySelector('did-agent');
-            if (agentElement) {
-                agentElement.remove();
-            }
+            // Cleanup on unmount
+            // It's important to remove the script and agent to prevent issues on other pages.
+            const scriptOnPage = document.querySelector('script[data-name="did-agent"]');
+            if (scriptOnPage) scriptOnPage.remove();
+            
+            const agentOnPage = document.querySelector('did-agent');
+            if (agentOnPage) agentOnPage.remove();
         };
-    }, []);
+    }, [containerId]);
 
-    // The script will likely inject a floating avatar, but we'll return a placeholder 
-    // to maintain the page layout where the avatar was.
-    return <div className="relative w-64 h-64 mx-auto" aria-label="D-ID Agent Container"></div>;
+    // This container is where the D-ID agent will be rendered.
+    return (
+        <div 
+            id={containerId} 
+            className="relative w-64 h-64 mx-auto border-4 border-hardcore-pink rounded-full shadow-2xl shadow-hardcore-pink/30 overflow-hidden" 
+            aria-label="D-ID Agent Container"
+        />
+    );
 };
 
 export default DidAvatar;
