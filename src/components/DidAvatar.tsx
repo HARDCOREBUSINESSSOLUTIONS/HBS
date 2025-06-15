@@ -30,9 +30,9 @@ const DidAvatar = ({ isSpeaking }: DidAvatarProps) => {
         script.dataset.containerId = containerId;
         script.dataset.clientKey = D_ID_CLIENT_KEY;
         script.dataset.agentId = D_ID_AGENT_ID;
-        script.dataset.monitor = 'true';
+        // script.dataset.monitor = 'true'; // Removed: this debug tool can cause visual conflicts.
 
-        document.body.appendChild(script);
+        document.head.appendChild(script);
 
         return () => {
             // Cleanup on unmount
