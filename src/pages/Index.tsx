@@ -1,3 +1,4 @@
+
 import HardcoreButton from "@/components/HardcoreButton";
 import { Zap, BrainCircuit, ShieldCheck, Cpu, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -82,9 +83,11 @@ const Index = () => {
             <h2 className="font-heading text-5xl md:text-6xl text-white">READY TO DOMINATE?</h2>
             <p className="mt-4 text-lg text-gray-300 max-w-xl mx-auto">Stop leaving money on the table. It's time to upgrade your operations.</p>
             <div className="mt-8">
-              <HardcoreButton>
-                  <span>BOOK A DEMO</span> <ArrowRight size={20} />
-              </HardcoreButton>
+              <Link to="/contact">
+                <HardcoreButton>
+                    <span>BOOK A DEMO</span> <ArrowRight size={20} />
+                </HardcoreButton>
+              </Link>
             </div>
         </div>
       </section>
