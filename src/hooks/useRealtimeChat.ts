@@ -1,3 +1,4 @@
+
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { RealtimeChat } from '@/utils/RealtimeChat';
 import { toast } from 'sonner';
@@ -5,54 +6,85 @@ import { toast } from 'sonner';
 export const useRealtimeChat = (setInput: (input: string) => void, options: { instructions?: string } = {}) => {
   const [isConnected, setIsConnected] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   const transcriptRef = useRef('');
   const chatRef = useRef<RealtimeChat | null>(null);
   const { instructions } = options;
 
   const handleMessage = (event: any) => {
+    console.log("Received event:", event.type);
+    
     if (event.type === 'response.audio_transcript.delta') {
       transcriptRef.current += event.delta;
       setInput(transcriptRef.current);
     } else if (event.type === 'response.audio_transcript.done') {
-      // You could add the final transcript to the chat messages here
+      // Clear transcript when response is complete
       transcriptRef.current = '';
     } else if (event.type === 'error') {
-      toast.error(`Realtime Error: ${event.message}`);
+      console.error("Realtime API error:", event);
+      toast.error(`Realtime Error: ${event.error?.message || event.message || 'Unknown error'}`);
       disconnect();
+    } else if (event.type === 'session.created') {
+      console.log("Session created successfully");
+      toast.success("Voice session established!");
+    } else if (event.type === 'response.audio.delta') {
+      // AI is sending audio
+      setIsSpeaking(true);
+    } else if (event.type === 'response.audio.done') {
+      // AI finished speaking
+      setIsSpeaking(false);
     }
   };
 
   const disconnect = useCallback(() => {
+    console.log("Disconnecting voice chat...");
+    
     if (chatRef.current) {
       chatRef.current.disconnect();
       chatRef.current = null;
     }
-    if (isConnected) {
+    
+    if (isConnected || isConnecting) {
       setIsConnected(false);
+      setIsConnecting(false);
       setIsSpeaking(false);
       setInput('');
       transcriptRef.current = '';
       toast.info("Voice assistant disconnected.");
     }
-  }, [isConnected, setInput]);
+  }, [isConnected, isConnecting, setInput]);
 
   const connect = useCallback(async () => {
-    if (chatRef.current) return;
+    if (chatRef.current || isConnecting) {
+      console.log("Already connecting or connected");
+      return;
+    }
+    
+    setIsConnecting(true);
     
     try {
+      console.log("Starting voice connection...");
       toast.info("Connecting to voice assistant...");
+      
       const chat = new RealtimeChat(handleMessage, setIsSpeaking);
       await chat.init(instructions);
+      
       chatRef.current = chat;
       setIsConnected(true);
-      toast.success("Voice assistant connected!");
+      setIsConnecting(false);
+      
+      console.log("Voice connection established");
+      toast.success("Voice assistant connected! You can now speak.");
+      
     } catch (error) {
+      console.error("Connection failed:", error);
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
       toast.error(`Connection failed: ${errorMessage}`);
-      console.error(error);
+      
+      setIsConnecting(false);
       disconnect();
     }
-  }, [disconnect, instructions]);
+  }, [disconnect, instructions, isConnecting]);
 
   useEffect(() => {
     return () => {
@@ -63,6 +95,7 @@ export const useRealtimeChat = (setInput: (input: string) => void, options: { in
   return {
     isConnected,
     isSpeaking,
+    isConnecting,
     connect,
     disconnect,
   };

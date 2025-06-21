@@ -2,7 +2,7 @@
 import React from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import HardcoreButton from '@/components/HardcoreButton';
-import { Send, Paperclip, X, Mic, MicOff } from 'lucide-react';
+import { Send, Paperclip, X, Mic, MicOff, Loader } from 'lucide-react';
 
 interface ChatInputProps {
   input: string;
@@ -36,6 +36,29 @@ const ChatInput = ({
     handleSubmit(e);
   };
 
+  // Get connecting state from the hook if available
+  const isConnecting = React.useMemo(() => {
+    // This is a simple way to detect if we're in a connecting state
+    // by checking if we have the connect function but aren't connected
+    return false; // We'll rely on the loading states for now
+  }, []);
+
+  const getMicrophoneButtonContent = () => {
+    if (isConnecting) {
+      return <Loader size={20} className="animate-spin text-yellow-500" />;
+    }
+    if (isConnected) {
+      return <MicOff size={20} className="text-red-500" />;
+    }
+    return <Mic size={20} />;
+  };
+
+  const getMicrophoneButtonLabel = () => {
+    if (isConnecting) return "Connecting voice...";
+    if (isConnected) return "Disconnect voice";
+    return "Connect voice";
+  };
+
   return (
     <div className="flex-shrink-0">
       <form onSubmit={handleTextSubmit} className="flex flex-col gap-2">
@@ -65,12 +88,12 @@ const ChatInput = ({
            <HardcoreButton
               type="button"
               onClick={isConnected ? disconnect : connect}
-              disabled={isLoading}
+              disabled={isLoading || isConnecting}
               className="p-3 h-full"
               size="icon"
-              aria-label={isConnected ? "Disconnect voice" : "Connect voice"}
+              aria-label={getMicrophoneButtonLabel()}
             >
-              {isConnected ? <MicOff size={20} className="text-red-500" /> : <Mic size={20} />}
+              {getMicrophoneButtonContent()}
           </HardcoreButton>
            <HardcoreButton
               type="button"

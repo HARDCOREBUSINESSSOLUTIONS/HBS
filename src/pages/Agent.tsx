@@ -23,6 +23,7 @@ const Agent = () => {
   const {
     isConnected,
     isSpeaking,
+    isConnecting,
     connect,
     disconnect,
   } = useRealtimeChat(setInput);
@@ -34,12 +35,18 @@ const Agent = () => {
           <DidAvatar isSpeaking={isSpeaking} />
           <h1 className="font-heading text-4xl text-center text-white mt-4">HARDCORE DEV OPS</h1>
           <p className="text-center text-gray-400">Talk to the machine. Upload a file for analysis.</p>
+          {isConnecting && (
+            <p className="text-center text-yellow-400 mt-2">🔄 Connecting to voice assistant...</p>
+          )}
+          {isConnected && (
+            <p className="text-center text-green-400 mt-2">🎤 Voice assistant active - speak now</p>
+          )}
         </div>
 
         <div className="flex flex-1 flex-col gap-4 overflow-hidden min-h-0">
           <ChatDisplay
             messages={messages}
-            isLoading={isLoading || (isConnected && isSpeaking)}
+            isLoading={isLoading || isConnecting || (isConnected && isSpeaking)}
             chatContainerRef={chatContainerRef}
           />
           <ChatInput
@@ -47,7 +54,7 @@ const Agent = () => {
             setInput={setInput}
             file={file}
             setFile={setFile}
-            isLoading={isLoading}
+            isLoading={isLoading || isConnecting}
             handleSubmit={handleSubmit}
             handleFileChange={handleFileChange}
             fileInputRef={fileInputRef}
@@ -60,4 +67,5 @@ const Agent = () => {
     </div>
   );
 };
+
 export default Agent;
