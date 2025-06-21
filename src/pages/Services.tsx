@@ -7,6 +7,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import HardcoreButton from "@/components/HardcoreButton";
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
 const features = [
   {
@@ -165,6 +168,20 @@ const Services = () => (
         </TableBody>
       </Table>
     </div>
+
+    {/* Feed the Machine CTA Section */}
+    <div className="mt-24 text-center bg-gradient-to-r from-hardcore-pink/10 to-cyber-indigo/20 rounded-2xl p-12 border border-hardcore-pink/20">
+      <h2 className="font-heading text-4xl md:text-5xl text-white mb-6">READY TO UNLEASH THE BEAST?</h2>
+      <p className="text-lg text-gray-300 max-w-2xl mx-auto mb-8">
+        You've seen the weapons. You know what we're capable of. Now it's time to point this firepower at your competition and watch them crumble.
+      </p>
+      <Link to="/contact">
+        <HardcoreButton className="text-xl px-12 py-6">
+          <span>FEED THE MACHINE</span> <ArrowRight size={24} />
+        </HardcoreButton>
+      </Link>
+    </div>
   </div>
 );
+
 export default Services;

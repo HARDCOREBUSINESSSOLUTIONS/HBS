@@ -1,6 +1,6 @@
 
 import HardcoreButton from "@/components/HardcoreButton";
-import { Zap, BrainCircuit, ShieldCheck, Clock, DollarSign, Users, CheckCircle, Star, ArrowRight } from "lucide-react";
+import { Zap, BrainCircuit, ShieldCheck, Clock, DollarSign, Users, CheckCircle, Star, ArrowRight, Cog } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const metrics = [
@@ -119,10 +119,15 @@ const Index = () => {
           <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-gray-300 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             We weaponize AI to destroy inefficiency. Your business, supercharged. Tap in, or tap out.
           </p>
-          <div className="mt-10 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
-            <Link to="/contact">
+          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+            <Link to="/services">
               <HardcoreButton>
-                <span>BOOK A DEMO</span> <span className="text-hardcore-pink">🔥</span>
+                <span>SEE THE ARSENAL</span> <Cog size={20} />
+              </HardcoreButton>
+            </Link>
+            <Link to="/contact">
+              <HardcoreButton className="bg-deep-black border-2 border-hardcore-pink text-hardcore-pink hover:bg-hardcore-pink hover:text-white">
+                <span>FEED THE MACHINE</span> <span className="text-2xl">⚡</span>
               </HardcoreButton>
             </Link>
           </div>
