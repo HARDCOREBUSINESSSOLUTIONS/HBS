@@ -14,7 +14,12 @@ export const useRealtimeChat = (setInput: (input: string) => void, options: { in
   const handleMessage = (event: any) => {
     console.log("Received event:", event.type);
     
-    if (event.type === 'response.audio_transcript.delta') {
+    if (event.type === 'session.ready') {
+      console.log("Session is ready for use");
+      setIsConnected(true);
+      setIsConnecting(false);
+      toast.success("Voice assistant connected! You can now speak.");
+    } else if (event.type === 'response.audio_transcript.delta') {
       transcriptRef.current += event.delta;
       setInput(transcriptRef.current);
     } else if (event.type === 'response.audio_transcript.done') {
@@ -33,7 +38,6 @@ export const useRealtimeChat = (setInput: (input: string) => void, options: { in
       setIsSpeaking(false);
     } else if (event.type === 'session.created') {
       console.log("Session created successfully");
-      toast.success("Voice session established!");
     } else if (event.type === 'session.updated') {
       console.log("Session updated successfully");
     } else if (event.type === 'error') {
@@ -56,15 +60,13 @@ export const useRealtimeChat = (setInput: (input: string) => void, options: { in
       chatRef.current = null;
     }
     
-    if (isConnected || isConnecting) {
-      setIsConnected(false);
-      setIsConnecting(false);
-      setIsSpeaking(false);
-      setInput('');
-      transcriptRef.current = '';
-      toast.info("Voice assistant disconnected.");
-    }
-  }, [isConnected, isConnecting, setInput]);
+    setIsConnected(false);
+    setIsConnecting(false);
+    setIsSpeaking(false);
+    setInput('');
+    transcriptRef.current = '';
+    toast.info("Voice assistant disconnected.");
+  }, [setInput]);
 
   const connect = useCallback(async () => {
     if (chatRef.current || isConnecting) {
@@ -82,11 +84,7 @@ export const useRealtimeChat = (setInput: (input: string) => void, options: { in
       await chat.init(instructions);
       
       chatRef.current = chat;
-      setIsConnected(true);
-      setIsConnecting(false);
-      
       console.log("Voice connection established");
-      toast.success("Voice assistant connected! You can now speak.");
       
     } catch (error) {
       console.error("Connection failed:", error);
@@ -94,15 +92,18 @@ export const useRealtimeChat = (setInput: (input: string) => void, options: { in
       toast.error(`Connection failed: ${errorMessage}`);
       
       setIsConnecting(false);
-      disconnect();
+      setIsConnected(false);
+      chatRef.current = null;
     }
   }, [disconnect, instructions, isConnecting]);
 
   useEffect(() => {
     return () => {
-      disconnect();
+      if (chatRef.current) {
+        chatRef.current.disconnect();
+      }
     };
-  }, [disconnect]);
+  }, []);
 
   return {
     isConnected,

@@ -7,6 +7,7 @@ export class RealtimeChat {
   private audioEl: HTMLAudioElement;
   private micStream: MediaStream | null = null;
   private isSessionReady = false;
+  private isConnected = false;
 
   constructor(
     private onMessage: (message: any) => void,
@@ -71,9 +72,15 @@ export class RealtimeChat {
       // Monitor connection states
       this.pc.onconnectionstatechange = () => {
         console.log("Connection state:", this.pc?.connectionState);
-        if (this.pc?.connectionState === 'failed' || this.pc?.connectionState === 'disconnected') {
+        if (this.pc?.connectionState === 'connected') {
+          this.isConnected = true;
+          console.log("WebRTC peer connection established");
+        } else if (this.pc?.connectionState === 'failed' || this.pc?.connectionState === 'disconnected') {
           console.error("WebRTC connection failed or disconnected");
-          this.onMessage({ type: 'error', message: 'Connection failed' });
+          this.isConnected = false;
+          if (this.isSessionReady) {
+            this.onMessage({ type: 'error', message: 'Connection lost' });
+          }
         }
       };
 
@@ -103,10 +110,10 @@ export class RealtimeChat {
       this.dc = this.pc.createDataChannel("oai-events");
       
       this.dc.addEventListener("open", () => {
-        console.log("Data channel opened, sending session update...");
+        console.log("Data channel opened, session is ready");
         this.isSessionReady = true;
         
-        // Send session configuration
+        // Send session configuration after data channel opens
         const sessionConfig = {
           type: "session.update",
           session: {
@@ -131,6 +138,9 @@ export class RealtimeChat {
         
         this.dc?.send(JSON.stringify(sessionConfig));
         console.log("Session configuration sent");
+        
+        // Notify that session is ready
+        this.onMessage({ type: 'session.ready' });
       });
 
       this.dc.addEventListener("message", (e) => {
@@ -145,12 +155,15 @@ export class RealtimeChat {
 
       this.dc.addEventListener("error", (error) => {
         console.error("Data channel error:", error);
-        this.onMessage({ type: 'error', message: 'Data channel error' });
+        if (this.isSessionReady) {
+          this.onMessage({ type: 'error', message: 'Data channel error' });
+        }
       });
 
       this.dc.addEventListener("close", () => {
         console.log("Data channel closed");
         this.isSessionReady = false;
+        this.isConnected = false;
       });
 
       console.log("Creating offer...");
@@ -185,7 +198,7 @@ export class RealtimeChat {
       };
       
       await this.pc.setRemoteDescription(answer);
-      console.log("WebRTC connection established successfully!");
+      console.log("WebRTC connection setup completed");
 
     } catch (error) {
       console.error("Error initializing chat:", error);
@@ -218,6 +231,7 @@ export class RealtimeChat {
     console.log("Disconnecting RealtimeChat...");
     
     this.isSessionReady = false;
+    this.isConnected = false;
     
     if (this.micStream) {
       this.micStream.getTracks().forEach(track => {
