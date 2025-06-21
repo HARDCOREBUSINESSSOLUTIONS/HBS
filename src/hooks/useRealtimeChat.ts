@@ -20,18 +20,30 @@ export const useRealtimeChat = (setInput: (input: string) => void, options: { in
     } else if (event.type === 'response.audio_transcript.done') {
       // Clear transcript when response is complete
       transcriptRef.current = '';
-    } else if (event.type === 'error') {
-      console.error("Realtime API error:", event);
-      toast.error(`Realtime Error: ${event.error?.message || event.message || 'Unknown error'}`);
-      disconnect();
-    } else if (event.type === 'session.created') {
-      console.log("Session created successfully");
-      toast.success("Voice session established!");
+    } else if (event.type === 'input_audio_buffer.speech_started') {
+      console.log("User started speaking");
+      setIsSpeaking(false); // Stop showing AI as speaking when user starts
+    } else if (event.type === 'input_audio_buffer.speech_stopped') {
+      console.log("User stopped speaking, committing audio buffer");
     } else if (event.type === 'response.audio.delta') {
       // AI is sending audio
       setIsSpeaking(true);
     } else if (event.type === 'response.audio.done') {
       // AI finished speaking
+      setIsSpeaking(false);
+    } else if (event.type === 'session.created') {
+      console.log("Session created successfully");
+      toast.success("Voice session established!");
+    } else if (event.type === 'session.updated') {
+      console.log("Session updated successfully");
+    } else if (event.type === 'error') {
+      console.error("Realtime API error:", event);
+      toast.error(`Realtime Error: ${event.error?.message || event.message || 'Unknown error'}`);
+      disconnect();
+    } else if (event.type === 'response.created') {
+      console.log("Response created, AI is processing");
+    } else if (event.type === 'response.done') {
+      console.log("Response completed");
       setIsSpeaking(false);
     }
   };

@@ -6,6 +6,7 @@ export class RealtimeChat {
   private dc: RTCDataChannel | null = null;
   private audioEl: HTMLAudioElement;
   private micStream: MediaStream | null = null;
+  private isSessionReady = false;
 
   constructor(
     private onMessage: (message: any) => void,
@@ -29,7 +30,7 @@ export class RealtimeChat {
         throw new Error("Microphone access is required for voice chat. Please allow microphone access and try again.");
       }
 
-      const defaultInstructions = "You are Hardcore Dev Ops, a helpful AI assistant specializing in development and operations. You are direct and to the point, with a bit of a cyber-punk flair.";
+      const defaultInstructions = "You are Hardcore Dev Ops, a helpful AI assistant specializing in development and operations. You are direct and to the point, with a bit of a cyber-punk flair. Respond conversationally and keep responses concise.";
       
       console.log("Getting ephemeral token...");
       const { data: tokenData, error: tokenError } = await supabase.functions.invoke("openai-realtime-session", {
@@ -52,9 +53,11 @@ export class RealtimeChat {
       console.log("Creating RTCPeerConnection...");
       this.pc = new RTCPeerConnection();
 
+      // Set up audio track handling
       this.pc.ontrack = e => {
         console.log("Received audio track");
         this.audioEl.srcObject = e.streams[0];
+        
         e.track.onunmute = () => {
           console.log("Audio track unmuted - AI is speaking");
           this.onSpeakingChange(true);
@@ -65,8 +68,13 @@ export class RealtimeChat {
         };
       };
 
+      // Monitor connection states
       this.pc.onconnectionstatechange = () => {
         console.log("Connection state:", this.pc?.connectionState);
+        if (this.pc?.connectionState === 'failed' || this.pc?.connectionState === 'disconnected') {
+          console.error("WebRTC connection failed or disconnected");
+          this.onMessage({ type: 'error', message: 'Connection failed' });
+        }
       };
 
       this.pc.oniceconnectionstatechange = () => {
@@ -93,22 +101,56 @@ export class RealtimeChat {
 
       console.log("Creating data channel...");
       this.dc = this.pc.createDataChannel("oai-events");
+      
+      this.dc.addEventListener("open", () => {
+        console.log("Data channel opened, sending session update...");
+        this.isSessionReady = true;
+        
+        // Send session configuration
+        const sessionConfig = {
+          type: "session.update",
+          session: {
+            modalities: ["text", "audio"],
+            instructions: instructions || defaultInstructions,
+            voice: "alloy",
+            input_audio_format: "pcm16",
+            output_audio_format: "pcm16",
+            input_audio_transcription: {
+              model: "whisper-1"
+            },
+            turn_detection: {
+              type: "server_vad",
+              threshold: 0.5,
+              prefix_padding_ms: 300,
+              silence_duration_ms: 1000
+            },
+            tool_choice: "auto",
+            temperature: 0.8
+          }
+        };
+        
+        this.dc?.send(JSON.stringify(sessionConfig));
+        console.log("Session configuration sent");
+      });
+
       this.dc.addEventListener("message", (e) => {
         try {
           const event = JSON.parse(e.data);
-          console.log("Received message:", event.type);
+          console.log("Received message:", event.type, event);
           this.onMessage(event);
         } catch (parseError) {
           console.error("Error parsing message:", parseError);
         }
       });
 
-      this.dc.addEventListener("open", () => {
-        console.log("Data channel opened");
-      });
-
       this.dc.addEventListener("error", (error) => {
         console.error("Data channel error:", error);
+        this.onMessage({ type: 'error', message: 'Data channel error' });
+      });
+
+      this.dc.addEventListener("close", () => {
+        console.log("Data channel closed");
+        this.isSessionReady = false;
       });
 
       console.log("Creating offer...");
@@ -153,8 +195,8 @@ export class RealtimeChat {
   }
 
   sendMessage(text: string) {
-    if (!this.dc || this.dc.readyState !== 'open') {
-      console.error('Data channel not ready for sending message. State:', this.dc?.readyState);
+    if (!this.dc || this.dc.readyState !== 'open' || !this.isSessionReady) {
+      console.error('Data channel not ready for sending message. State:', this.dc?.readyState, 'Session ready:', this.isSessionReady);
       return;
     }
 
@@ -174,6 +216,8 @@ export class RealtimeChat {
 
   disconnect() {
     console.log("Disconnecting RealtimeChat...");
+    
+    this.isSessionReady = false;
     
     if (this.micStream) {
       this.micStream.getTracks().forEach(track => {
