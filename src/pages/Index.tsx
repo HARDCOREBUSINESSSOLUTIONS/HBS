@@ -120,7 +120,7 @@ const Index = () => {
             We weaponize AI to destroy inefficiency. Your business, supercharged. Tap in, or tap out.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
-            <Link to="/services">
+            <Link to="/agent">
               <HardcoreButton>
                 <span>SEE THE ARSENAL</span> <Cog size={20} />
               </HardcoreButton>

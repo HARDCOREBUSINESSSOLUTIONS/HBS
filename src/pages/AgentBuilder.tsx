@@ -142,18 +142,18 @@ const AgentBuilder = () => {
   return (
     <div className="min-h-screen bg-deep-black text-white">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-900 to-blue-900 px-6 py-8">
+      <div className="bg-gradient-to-r from-cyber-indigo to-hardcore-pink px-6 py-8">
         <div className="container mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-hardcore-pink rounded-lg flex items-center justify-center">
               🔥
             </div>
             <div>
               <h1 className="text-3xl font-bold">Agent Builder</h1>
-              <p className="text-gray-300">Create custom OpenAI Assistants with tools and endpoints</p>
+              <p className="text-muted-foreground">Create custom OpenAI Assistants with tools and endpoints</p>
             </div>
           </div>
-          <Button className="bg-purple-600 hover:bg-purple-700" onClick={() => navigate('/agent')}>
+          <Button className="bg-hardcore-pink hover:bg-hardcore-pink/80" onClick={() => navigate('/agent')}>
             <Plus className="w-4 h-4 mr-2" />
             Create Agent
           </Button>
@@ -163,7 +163,7 @@ const AgentBuilder = () => {
       {/* Form Content */}
       <div className="container mx-auto px-6 py-8">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-gray-900 rounded-lg p-8">
+          <div className="bg-card rounded-lg p-8 border border-border">
             <h2 className="text-2xl font-bold mb-6">Create New Agent</h2>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -179,7 +179,7 @@ const AgentBuilder = () => {
                     value={formData.agentName}
                     onChange={(e) => handleInputChange('agentName', e.target.value)}
                     placeholder="My Custom Agent"
-                    className="bg-gray-800 border-gray-700 text-white"
+                    className="bg-input border-border"
                   />
                 </div>
 
@@ -193,7 +193,7 @@ const AgentBuilder = () => {
                     value={formData.description}
                     onChange={(e) => handleInputChange('description', e.target.value)}
                     placeholder="Describe what your agent does..."
-                    className="bg-gray-800 border-gray-700 text-white min-h-[120px]"
+                    className="bg-input border-border min-h-[120px]"
                   />
                 </div>
 
@@ -208,7 +208,7 @@ const AgentBuilder = () => {
                     value={formData.userEmail}
                     onChange={(e) => handleInputChange('userEmail', e.target.value)}
                     placeholder="your@email.com"
-                    className="bg-gray-800 border-gray-700 text-white"
+                    className="bg-input border-border"
                   />
                 </div>
 
@@ -216,10 +216,10 @@ const AgentBuilder = () => {
                 <div>
                   <Label className="text-white mb-2 block">Model</Label>
                   <Select value={formData.model} onValueChange={(value) => handleInputChange('model', value)}>
-                    <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                    <SelectTrigger className="bg-input border-border">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-700">
+                    <SelectContent className="bg-popover border-border">
                       <SelectItem value="gpt-4-turbo">GPT-4 Turbo</SelectItem>
                       <SelectItem value="gpt-4">GPT-4</SelectItem>
                       <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
@@ -239,7 +239,7 @@ const AgentBuilder = () => {
                     id="systemInstructions"
                     value={formData.systemInstructions}
                     onChange={(e) => handleInputChange('systemInstructions', e.target.value)}
-                    className="bg-gray-800 border-gray-700 text-white min-h-[120px]"
+                    className="bg-input border-border min-h-[120px]"
                   />
                 </div>
 
@@ -252,18 +252,18 @@ const AgentBuilder = () => {
                         id="fileSearch"
                         checked={formData.fileSearch}
                         onCheckedChange={(checked) => handleInputChange('fileSearch', checked as boolean)}
-                        className="border-gray-600"
+                        className="border-border"
                       />
-                      <Label htmlFor="fileSearch" className="text-white">File Search</Label>
+                      <Label htmlFor="fileSearch">File Search</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id="codeInterpreter"
                         checked={formData.codeInterpreter}
                         onCheckedChange={(checked) => handleInputChange('codeInterpreter', checked as boolean)}
-                        className="border-gray-600"
+                        className="border-border"
                       />
-                      <Label htmlFor="codeInterpreter" className="text-white">Code Interpreter</Label>
+                      <Label htmlFor="codeInterpreter">Code Interpreter</Label>
                     </div>
                   </div>
                 </div>
@@ -280,18 +280,18 @@ const AgentBuilder = () => {
                   value={newTool.name}
                   onChange={(e) => setNewTool(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="Tool name (e.g., web_search)"
-                  className="bg-gray-800 border-gray-700 text-white"
+                  className="bg-input border-border"
                 />
                 <div className="flex gap-2">
                   <Input
                     value={newTool.description}
                     onChange={(e) => setNewTool(prev => ({ ...prev, description: e.target.value }))}
                     placeholder="Tool description"
-                    className="bg-gray-800 border-gray-700 text-white flex-1"
+                    className="bg-input border-border flex-1"
                   />
                   <Button
                     onClick={handleAddTool}
-                    className="bg-purple-600 hover:bg-purple-700 px-6"
+                    className="bg-hardcore-pink hover:bg-hardcore-pink/80 px-6"
                   >
                     Add Tool
                   </Button>
@@ -300,55 +300,55 @@ const AgentBuilder = () => {
 
               {/* Tools List */}
               {customTools.length > 0 && (
-                <div className="space-y-2">
-                  {customTools.map((tool) => (
-                    <div key={tool.id} className="flex items-center justify-between bg-gray-800 p-3 rounded-lg">
-                      <div>
-                        <span className="font-medium text-white">{tool.name}</span>
-                        <span className="text-gray-400 ml-2">- {tool.description}</span>
+                  <div className="space-y-2">
+                    {customTools.map((tool) => (
+                      <div key={tool.id} className="flex items-center justify-between bg-muted p-3 rounded-lg">
+                        <div>
+                          <span className="font-medium">{tool.name}</span>
+                          <span className="text-muted-foreground ml-2">- {tool.description}</span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveTool(tool.id)}
+                          className="text-destructive hover:text-destructive/80"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveTool(tool.id)}
-                        className="text-red-400 hover:text-red-300"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
               )}
             </div>
 
             {/* Tags Section */}
             <div className="mt-8">
-              <Label className="text-white mb-2 block">Tags (press Enter to add)</Label>
+              <Label className="mb-2 block">Tags (press Enter to add)</Label>
               <Input
                 value={currentTag}
                 onChange={(e) => setCurrentTag(e.target.value)}
                 onKeyDown={handleAddTag}
                 placeholder="Enter tags..."
-                className="bg-gray-800 border-gray-700 text-white mb-3"
+                className="bg-input border-border mb-3"
               />
               
               {tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="bg-purple-600 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1"
-                    >
-                      {tag}
-                      <button
-                        onClick={() => handleRemoveTag(tag)}
-                        className="text-purple-200 hover:text-white"
+                  <div className="flex flex-wrap gap-2">
+                    {tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="bg-hardcore-pink text-white px-3 py-1 rounded-full text-sm flex items-center gap-1"
                       >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
+                        {tag}
+                        <button
+                          onClick={() => handleRemoveTag(tag)}
+                          className="text-white/80 hover:text-white"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
               )}
             </div>
 
@@ -357,7 +357,7 @@ const AgentBuilder = () => {
               <Button
                 onClick={handleCreateAgent}
                 disabled={isCreating}
-                className="bg-purple-600 hover:bg-purple-700 px-8 py-3 text-lg"
+                className="bg-hardcore-pink hover:bg-hardcore-pink/80 px-8 py-3 text-lg"
               >
                 {isCreating ? (
                   <>
