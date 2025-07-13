@@ -44,16 +44,11 @@ const AgentBuilder = () => {
   const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
-    // Only redirect if we're sure loading is complete AND user is not authenticated
     if (!loading && !user) {
-      console.log('Auth check: redirecting to home - loading:', loading, 'user:', user);
       navigate('/');
-    } else {
-      console.log('Auth check: staying on page - loading:', loading, 'user:', !!user);
     }
   }, [user, loading, navigate]);
 
-  // Show loading spinner while auth is being determined
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-deep-black">
@@ -62,13 +57,9 @@ const AgentBuilder = () => {
     );
   }
 
-  // Show loading spinner if user is null but we're still potentially loading
   if (!user) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-deep-black">
-        <Loader2 className="h-16 w-16 animate-spin text-hardcore-pink" />
-      </div>
-    );
+    navigate('/');
+    return null;
   }
 
   const handleInputChange = (field: string, value: string | boolean) => {
