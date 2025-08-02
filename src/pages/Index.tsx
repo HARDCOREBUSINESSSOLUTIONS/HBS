@@ -127,7 +127,7 @@ const Index = () => {
             </Link>
             <Link to="/contact">
               <HardcoreButton className="bg-deep-black border-2 border-hardcore-pink text-hardcore-pink hover:bg-hardcore-pink hover:text-white">
-                <span>SIGN UP</span> <span className="text-2xl">⚡</span>
+                <span>FEED THE MACHINE</span> <span className="text-2xl">⚡</span>
               </HardcoreButton>
             </Link>
           </div>
