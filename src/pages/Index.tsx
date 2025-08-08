@@ -251,7 +251,67 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
+{/* Pricing Section */}
+<section id="pricing" className="py-24 bg-cyber-indigo">
+  <div className="container mx-auto px-4">
+    <h2 className="font-heading text-4xl md:text-5xl text-center text-white mb-16">PRICING</h2>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="p-8 border border-hardcore-pink/20 rounded-2xl bg-deep-black/30">
+        <h3 className="font-heading text-2xl text-white">Starter</h3>
+        <p className="mt-1 text-gray-400">Kickstart automation with core features.</p>
+        <div className="mt-6 text-4xl font-heading text-hardcore-pink">$0<span className="text-lg text-gray-400">/mo</span></div>
+        <ul className="mt-6 space-y-2 text-gray-300">
+          <li>• Basic live agent</li>
+          <li>• Email support</li>
+          <li>• Community access</li>
+        </ul>
+        <div className="mt-8">
+          <Link to="/contact">
+            <HardcoreButton>
+              <span>Choose Starter</span>
+            </HardcoreButton>
+          </Link>
+        </div>
+      </div>
+      <div className="p-8 border border-hardcore-pink rounded-2xl bg-deep-black/40">
+        <h3 className="font-heading text-2xl text-white">Pro</h3>
+        <p className="mt-1 text-gray-400">Scale with advanced analytics and integrations.</p>
+        <div className="mt-6 text-4xl font-heading text-hardcore-pink">$49<span className="text-lg text-gray-400">/mo</span></div>
+        <ul className="mt-6 space-y-2 text-gray-300">
+          <li>• Advanced agent + analytics</li>
+          <li>• Priority support</li>
+          <li>• CRM sync</li>
+        </ul>
+        <div className="mt-8">
+          <Link to="/contact">
+            <HardcoreButton className="bg-deep-black border-2 border-hardcore-pink text-hardcore-pink hover:bg-hardcore-pink hover:text-white">
+              <span>Start Pro</span>
+            </HardcoreButton>
+          </Link>
+        </div>
+      </div>
+      <div className="p-8 border border-hardcore-pink/20 rounded-2xl bg-deep-black/30">
+        <h3 className="font-heading text-2xl text-white">Enterprise</h3>
+        <p className="mt-1 text-gray-400">Battle-tested automation tailored to your org.</p>
+        <div className="mt-6 text-4xl font-heading text-hardcore-pink">Custom</div>
+        <ul className="mt-6 space-y-2 text-gray-300">
+          <li>• Dedicated infra</li>
+          <li>• SSO & compliance</li>
+          <li>• Custom workflows</li>
+        </ul>
+        <div className="mt-8">
+          <Link to="/contact">
+            <HardcoreButton>
+              <span>Talk to Sales</span>
+            </HardcoreButton>
+          </Link>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{/* CTA Section */}
       <section className="py-24 bg-hardcore-pink">
         <div className="container mx-auto text-center px-4">
           <h2 className="font-heading text-5xl md:text-6xl text-white mb-4">READY TO DOMINATE?</h2>

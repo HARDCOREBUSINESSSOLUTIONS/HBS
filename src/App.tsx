@@ -16,6 +16,8 @@ import NotFound from "./pages/NotFound";
 import { AuthProvider } from "./contexts/AuthProvider";
 import ProfileSetup from "./pages/ProfileSetup";
 import Admin from "./pages/Admin";
+import Pricing from "./pages/Pricing";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +39,8 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/profile-setup" element={<ProfileSetup />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>
